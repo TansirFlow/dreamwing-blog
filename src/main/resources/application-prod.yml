@@ -1,0 +1,23 @@
+minio:
+  url: http://localhost:9001
+  username: user
+  password: passwd
+  bucketName: cos-bucket
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dreamwing
+    username: dreamwing
+    password: mysql_password
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis_password
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
