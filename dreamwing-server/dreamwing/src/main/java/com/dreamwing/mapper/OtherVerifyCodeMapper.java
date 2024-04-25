@@ -1,10 +1,7 @@
 package com.dreamwing.mapper;
 
 import com.dreamwing.pojo.OtherVerifyCode;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface OtherVerifyCodeMapper {
@@ -19,4 +16,7 @@ public interface OtherVerifyCodeMapper {
     @Update("update other_verify_code set code=#{verifyCode},expiration_time=NOW() + INTERVAL 5 MINUTE " +
             "where username=#{username} and type=#{type}")
     void update(String username, String type, String verifyCode);
+
+    @Delete("delete from other_verify_code where username=#{username} and type=#{type}")
+    void delete(String username, String type);
 }

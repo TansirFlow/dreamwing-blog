@@ -166,8 +166,13 @@ public class UserServiceImpl implements UserService {
         if (otherVerifyCode == null || !Objects.equals(otherVerifyCode.getCode(), user.getVerifyCode())) {
             throw new VerifyCodeException(VerifyCodeConstants.OTHER_VERIFY_CODE_NOT_EXIST);
         }
+        if(!otherVerifyCode.getExpirationTime().isAfter(LocalDateTime.now())){
+            otherVerifyCodeMapper.delete(user.getUsername(),VerifyCodeConstants.FIND_PASSWORD_VERIFY_CODE);
+            throw new VerifyCodeException(VerifyCodeConstants.OTHER_VERIFY_CODE_EXPIRATION);
+        }
         User u=userMapper.findByUserName(user.getUsername());
         userMapper.updatePwd(Md5Util.getMD5String(user.getInputPassword()),u.getId());
+        otherVerifyCodeMapper.delete(user.getUsername(),VerifyCodeConstants.FIND_PASSWORD_VERIFY_CODE);
     }
 
     /**

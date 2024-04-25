@@ -7,4 +7,5 @@ public class VerifyCodeConstants {
 
     public static final String FIND_PASSWORD_VERIFY_CODE="找回密码";
     public static final String OTHER_VERIFY_CODE_NOT_EXIST = "验证码错误";
+    public static final String OTHER_VERIFY_CODE_EXPIRATION = "验证码已过期";
 }
