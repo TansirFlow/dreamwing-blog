@@ -1,5 +1,6 @@
 package com.dreamwing.pojo;
 
+import com.dreamwing.anno.UserState;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -14,12 +15,12 @@ public class User {
     @NotNull(groups = {UpdateGroup.class})
     private Integer id;//主键ID
 
-    @NotEmpty(groups = {RegisterGroup.class,LoginGroup.class})
-    @Pattern(regexp = "^\\S{3,16}$",groups = {RegisterGroup.class})
+    @NotEmpty(groups = {RegisterGroup.class,LoginGroup.class,FindPwd.class})
+    @Pattern(regexp = "^\\S{3,16}$",groups = {RegisterGroup.class,FindPwd.class})
     private String username;//用户名
 
-    @NotEmpty(groups = {RegisterGroup.class,LoginGroup.class})
-    @Pattern(regexp = "^\\S{6,18}$",groups = {RegisterGroup.class})
+    @NotEmpty(groups = {RegisterGroup.class,LoginGroup.class,FindPwd.class})
+    @Pattern(regexp = "^\\S{6,18}$",groups = {RegisterGroup.class,FindPwd.class})
     private String inputPassword;//前端传入的密码，不被忽略
 
     @JsonIgnore//转json时自动忽略password
@@ -38,12 +39,17 @@ public class User {
     private LocalDateTime updateTime;//更新时间
     private String signature;//个性签名
     private Integer role;//用户角色
+    @UserState
     private String state;//用户封禁状态
+    @NotEmpty(groups = {RegisterGroup.class,FindPwd.class})
+    private String verifyCode;//获取的验证码
 
     public interface RegisterGroup {}
 
     public interface LoginGroup {}
 
     public interface UpdateGroup {}
+
+    public interface FindPwd {}
 
 }

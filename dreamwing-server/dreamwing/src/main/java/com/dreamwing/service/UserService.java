@@ -14,4 +14,10 @@ public interface UserService {
     void updateAvatar(String avatarUrl);
 
     User getUserInfo();
+
+    void sendRegisterVerifyCodeEmail(String username, String email);
+
+    void sendFindPwdEmail(String username, String email);
+
+    void findPwd(User user);
 }

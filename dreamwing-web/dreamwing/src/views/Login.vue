@@ -24,7 +24,7 @@ const login = () => {
                             <br>
                             <el-row :style="{ display: `flex`, alignItems: `center`, justifyContent: `center` }">
                                 <el-col :span="18">
-                                    <el-text class="mx-1" :style="{ fontSize: `32px` }">管理员登录</el-text><br><br>
+                                    <el-text class="mx-1" :style="{ fontSize: `32px` }">DreamWing</el-text><br><br>
                                     <!--此处填写卡片内容-->
                                     <el-form :model="loginData" label-width="auto" size="large">
                                         <el-form-item>
