@@ -16,7 +16,7 @@ import com.dreamwing.service.UserService;
 import com.dreamwing.utils.EmailRequestUtil;
 import com.dreamwing.utils.Md5Util;
 import com.dreamwing.utils.ThreadLocalUtil;
-import com.dreamwing.utils.VerifyCode;
+import com.dreamwing.utils.VerifyCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
         EmailRequest emailRequest = new EmailRequest();
         emailRequest.setSubject(EmailConstants.DEFAULT_EMAIL_SUBJECT);
         emailRequest.setRecipient(email);
-        String verifyCode = VerifyCode.makeVerifyCode();
+        String verifyCode = VerifyCodeUtil.makeVerifyCode();
         RegisterVerifyCode registerVerifyCode = registerVerifyCodeMapper.find(username, email);
         if (registerVerifyCode == null) {
             registerVerifyCodeMapper.add(username, email, verifyCode);
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void sendFindPwdEmail(String username, String email) {
-        String verifyCode = VerifyCode.makeVerifyCode();
+        String verifyCode = VerifyCodeUtil.makeVerifyCode();
         String type = VerifyCodeConstants.FIND_PASSWORD_VERIFY_CODE;
         OtherVerifyCode otherVerifyCode = otherVerifyCodeMapper.find(username, type);
         if (otherVerifyCode == null) {
@@ -182,6 +182,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void update(User user) {
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer id = (Integer) claims.get("id");
+        user.setId(id);
         userMapper.update(user);
     }
 }

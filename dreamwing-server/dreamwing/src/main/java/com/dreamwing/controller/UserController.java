@@ -86,11 +86,11 @@ public class UserController {
 
     @PostMapping("/update")
     public Result update(@RequestBody User user) {
-        System.out.println(user);
         Set<ConstraintViolation<User>> updateViolations = validator.validate(user, User.UpdateGroup.class);
         if (!updateViolations.isEmpty()) {
             return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
         }
+
         userService.update(user);
         return Result.success();
     }

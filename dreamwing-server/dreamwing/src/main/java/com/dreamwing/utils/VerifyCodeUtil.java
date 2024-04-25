@@ -2,7 +2,7 @@ package com.dreamwing.utils;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class VerifyCode {
+public class VerifyCodeUtil {
     /**
      * 生成验证码
      * @return

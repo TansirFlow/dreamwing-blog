@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class User {
-    @NotNull(groups = {UpdateGroup.class})
+    @NotNull
     private Integer id;//主键ID
 
     @NotEmpty(groups = {RegisterGroup.class,LoginGroup.class,FindPwd.class})
