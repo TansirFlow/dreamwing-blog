@@ -2,8 +2,8 @@
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { User, Lock,Message,CircleCheck } from '@element-plus/icons-vue'
+import router from '@/router'
 import { getRegisterVerifyCodeService, userRegisterService } from '@/api/user';
-import { showFullScreenLoading,tryHideFullScreenLoading } from '@/utils/loading.js'
 const registerData = ref({
     username: '',
     inputPassword: '',
@@ -11,9 +11,7 @@ const registerData = ref({
     email: '',
     verifyCode: '',
 })
-const login = () => {
-    ElMessage.error(`账号：${registerData.value.username}\n密码：${registerData.value.password}\n` + '登录失败')
-}
+
 
 const getRegisterVerifyCode=async ()=>{
     let result=await getRegisterVerifyCodeService(registerData);
@@ -38,11 +36,11 @@ const checkRePassword=(rule,value,callback)=>{
 const rules={
     username:[
         {required:true,message:'请输入用户名',trigger:'blur'},
-        {min:5,max:16,message:'长度为3~16位非空字符',trigger:'blur'},
+        {min:3,max:16,message:'长度为3~16位非空字符',trigger:'blur'},
     ],
     inputPassword:[
         {required:true,message:'请输入密码',trigger:'blur'},
-        {min:5,max:16,message:'长度为6~18位非空字符',trigger:'blur'},
+        {min:6,max:18,message:'长度为6~18位非空字符',trigger:'blur'},
     ],
     rePassword:[
         {validator:checkRePassword,trigger:'blur'},
@@ -58,7 +56,7 @@ const rules={
 </script>
 
 <template>
-    <el-container>
+    <el-container  @keyup.enter="register">
         <el-row class="out-box-style">
             <el-col :style="{ display: `flex`, alignItems: `center`, justifyContent: `center` }">
                 <el-row class="demo-radius" :style="{ border: '0px solid red', width: `500px`, height: `600px` }">
@@ -103,7 +101,7 @@ const rules={
                                         <el-form-item :style="{justifyContent: `flex-end`}">
                                             <el-row justify="center" :style="{width:`100%`}">
                                                 <el-col :span="24">
-                                                    <el-link href="" target="_blank">已有账号？去登录-></el-link>
+                                                    <el-link href="" target="_blank" @click="router.push('/login')">已有账号？去登录-></el-link>
                                                 </el-col>
                                             </el-row>
                                         </el-form-item>

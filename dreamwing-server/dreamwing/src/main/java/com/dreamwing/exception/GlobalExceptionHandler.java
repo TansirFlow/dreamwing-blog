@@ -1,5 +1,6 @@
 package com.dreamwing.exception;
 
+import com.dreamwing.constants.GlobalConstants;
 import com.dreamwing.pojo.Result;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public Result handlerException(Exception e){
-        return Result.error(StringUtils.hasLength(e.getMessage())?e.getMessage():"操作失败");
+        String msg=e.getMessage();
+        if(e.getMessage().contains("需要匹配正则表达式")){
+            msg= GlobalConstants.INFORMATION_NOT_MATCH;
+        }
+        return Result.error(StringUtils.hasLength(msg)?msg:"操作失败");
     }
 
     @ExceptionHandler(DuplicateKeyException.class)

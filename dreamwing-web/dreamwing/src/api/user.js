@@ -13,9 +13,5 @@ export const userRegisterService = (registerData) => {
 
 
 export const userLoginService = (loginData) => {
-    const params = new URLSearchParams()
-    for (let key in loginData) {
-        params.append(key, loginData[key]);
-    }
-    return request.post('/user/login', params)
+    return request.post('/user/login', JSON.stringify(loginData.value),{headers:{'content-type':"application/json"}});
 }

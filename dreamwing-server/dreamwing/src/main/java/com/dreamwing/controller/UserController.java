@@ -50,7 +50,7 @@ public class UserController {
         System.out.println(user);
         Set<ConstraintViolation<User>> registerViolations = validator.validate(user, User.RegisterGroup.class);
         if (!registerViolations.isEmpty()) {
-            return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
+            return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
         userService.register(user);
         return Result.success();
@@ -61,7 +61,7 @@ public class UserController {
         System.out.println(user);
         Set<ConstraintViolation<User>> loginViolations = validator.validate(user, User.LoginGroup.class);
         if (!loginViolations.isEmpty()) {
-            return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
+            return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
         String password = Md5Util.getMD5String(user.getInputPassword());
         user.setPassword(password);
@@ -88,7 +88,7 @@ public class UserController {
     public Result update(@RequestBody User user) {
         Set<ConstraintViolation<User>> updateViolations = validator.validate(user, User.UpdateGroup.class);
         if (!updateViolations.isEmpty()) {
-            return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
+            return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
 
         userService.update(user);
@@ -100,7 +100,7 @@ public class UserController {
         String oldPwd = params.get("old_pwd");
         String newPwd = params.get("new_pwd");
         if (!StringUtils.hasLength(oldPwd) || !StringUtils.hasLength(newPwd)) {
-            return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
+            return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
         Map<String, Object> claims = ThreadLocalUtil.get();
         Integer id = (Integer) claims.get("id");
@@ -157,7 +157,7 @@ public class UserController {
     public Result findPwd(@RequestBody User user){
         Set<ConstraintViolation<User>> findPwdViolations = validator.validate(user, User.FindPwd.class);
         if (!findPwdViolations.isEmpty()) {
-            return Result.error(GlobalConstants.REQUEST_PARAMETER_NOT_MATCH);
+            return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
         userService.findPwd(user);
         return Result.success();
