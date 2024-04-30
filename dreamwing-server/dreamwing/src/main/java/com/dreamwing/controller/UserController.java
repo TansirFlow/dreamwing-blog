@@ -47,7 +47,7 @@ public class UserController {
 
     @PostMapping("/register")
     public Result register(@RequestBody User user) {
-        System.out.println(user);
+//        System.out.println(user);
         Set<ConstraintViolation<User>> registerViolations = validator.validate(user, User.RegisterGroup.class);
         if (!registerViolations.isEmpty()) {
             return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
