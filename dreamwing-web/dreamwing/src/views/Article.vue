@@ -1,7 +1,7 @@
 <script setup>
 import { getArticleByIdService } from '@/api/article';
 import { useRoute } from 'vue-router';
-import { ref, onMounted, onActivated, nextTick, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onActivated, nextTick, onBeforeUnmount, onUpdated, defineComponent, createApp } from 'vue'
 import { CirclePlus, Search, Link, House } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -105,7 +105,48 @@ const rollTo = (anchor, index) => {// markdown-标题跳转
 }
 
 
+const adaptOutlinePosition = () => {
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    const outlintWidth = parseInt((windowWidth * 20.0 / 24) * 5.0 / 24);
+    const outlineRight = parseInt(windowWidth * 2.0 / 24)
+    outlineStyle.value.left = `${outlineRight}px`
+    outlineStyle.value.width = `${outlintWidth}px`
+    let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
+    outlineStyle.value.bottom = '20px'
+    if (scrollTop < 0.3 * windowHeight) {
+        let topPosY = windowHeight * 0.4 + 50;
+        outlineStyle.value.top = `${topPosY}px`
+    } else {
+        outlineStyle.value.top = `90px`
+        outlineScrollHeight.value = `${windowHeight - 200}px`
+    }
+    const outlineScrollTop = outlineScrollRef.value.$refs.wrapRef.scrollTop;
+    const highLightTop = 35 * (heightTitle.value + 1);
+    // console.log("当前高亮标题距离大纲顶部距离"+(highLightTop))
+    // console.log("当前大纲滚动距离"+(outlineScrollTop))
+    console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
+    console.log("大纲滚动高度" + outlineScrollHeight.value)
+    const highLightToScrollAreaTopDistance = highLightTop - outlineScrollTop;
+    if (highLightToScrollAreaTopDistance >= parseInt(outlineScrollHeight.value)) {
+        let delta = parseInt(outlineScrollHeight.value)
+        outlineScrollRef.value.$refs.wrapRef.scrollTop += delta / 2
+    }
+    if (highLightToScrollAreaTopDistance < 0) {
+        let delta = parseInt(outlineScrollHeight.value)
+        outlineScrollRef.value.$refs.wrapRef.scrollTop -= delta / 2
+    }
+
+}
+
+
+const handleResize = () => {
+    adaptOutlinePosition()
+}
+
+
 onMounted(() => {
+    window.addEventListener('resize', handleResize);
     initOutlinePosition()
     articleData()
     setTimeout(() => {
@@ -119,6 +160,10 @@ onActivated(() => {
     setTimeout(() => {
         getTitle()
     }, 1000)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
 })
 
 const outline = ref()
@@ -156,34 +201,7 @@ const handleScroll = () => {
     })
     // 屏幕滚动距离与标题高度最近的index高亮
     heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
-
-    const windowHeight = window.innerHeight;
-
-    outlineStyle.value.bottom = '20px'
-    if (scrollTop < 0.3 * windowHeight) {
-        let topPosY = windowHeight * 0.4 + 50;
-        outlineStyle.value.top = `${topPosY}px`
-    } else {
-        outlineStyle.value.top = `90px`
-        outlineScrollHeight.value = `${windowHeight - 200}px`
-    }
-
-
-    const outlineScrollTop = outlineScrollRef.value.$refs.wrapRef.scrollTop;
-    const highLightTop = 35 * (heightTitle.value + 1);
-    // console.log("当前高亮标题距离大纲顶部距离"+(highLightTop))
-    // console.log("当前大纲滚动距离"+(outlineScrollTop))
-    console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
-    console.log("大纲滚动高度" + outlineScrollHeight.value)
-    const highLightToScrollAreaTopDistance = highLightTop - outlineScrollTop;
-    if (highLightToScrollAreaTopDistance >= parseInt(outlineScrollHeight.value)) {
-        let delta = parseInt(outlineScrollHeight.value)
-        outlineScrollRef.value.$refs.wrapRef.scrollTop += delta / 2
-    }
-    if (highLightToScrollAreaTopDistance < 0) {
-        let delta = parseInt(outlineScrollHeight.value)
-        outlineScrollRef.value.$refs.wrapRef.scrollTop -= delta / 2
-    }
+    adaptOutlinePosition()
 }
 
 const circleUrl = ref('../assets/tstx.jpg');
@@ -197,6 +215,7 @@ import { } from '@vicons/material'
 import { Qq, Github } from '@vicons/fa'
 import { } from '@vicons/carbon'
 import { Icon } from '@vicons/utils'
+
 
 
 </script>
@@ -275,7 +294,7 @@ import { Icon } from '@vicons/utils'
                         :span="13"><!--文章内容-->
                         <el-card :style="{ width: '100%', borderRadius: `var(--el-border-radius-base)` }">
                             <div ref="editor"><!--文章内容-->
-                                <v-md-preview :text="article.articleContent" ref="editor"></v-md-preview>
+                                <v-md-preview :text="article.articleContent"></v-md-preview>
                             </div>
                         </el-card>
                     </el-col>
