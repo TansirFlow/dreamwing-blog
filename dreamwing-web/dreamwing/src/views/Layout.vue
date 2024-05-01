@@ -223,10 +223,7 @@ onActivated(() => {
                 </el-row>
                 <el-footer class="footer">
                     <!-- 版权信息 -->
-                    © 2024 DreamWing Blog. All rights reserved.<br>
-                    <el-link href="https://su.sctes.com/register?code=8cyve3yx9q2vc" target="_blank" size="large">
-                        本站由&nbsp;<el-link type="primary">无畏云科技</el-link>&nbsp;提供免费云加速服务
-                    </el-link>
+                    © 2024 DreamWing Blog. All rights reserved.
                 </el-footer>
             </el-col>
         </el-row>

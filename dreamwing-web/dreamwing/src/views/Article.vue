@@ -116,17 +116,16 @@ onActivated(() => {
     }, 1000)
 })
 const scrollbar = ref(null)
+const outline = ref()
+const rightCol = ref()
+const outlineTop = ref(-100)
+const outlineStyle = ref({
+    width: `100%`,
+    transform: 'translate(0,0px)',
+    'animation-duration': '0s'
+})
 const handleScroll = () => {
-    // 监听屏幕滚动时防抖（在规定的时间内触发的事件，只执行最后一次，降低性能开销）
-    // let timeOut = null; // 初始化空定时器
-    // return () => {
-    //     clearTimeout(timeOut)   // 频繁操作，一直清空先前的定时器
-    //     timeOut = setTimeout(() => {  // 只执行最后一次事件
-
-    //     }, 500)
-    // }
     let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
-    console.log(scrollTop)
     const absList = [] // 各个h标签与当前距离绝对值
     titleList.value.forEach((item) => {
         absList.push(Math.abs(item.height - scrollTop))
@@ -134,7 +133,28 @@ const handleScroll = () => {
     // 屏幕滚动距离与标题高度最近的index高亮
     heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
 
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    const outlintWidth=parseInt((windowWidth*18.0/24)*7.0/24);
+    const outlineRight=parseInt(windowWidth*3.0/24)
+
+    if (scrollTop < 0.4 * windowHeight) {
+        outlineStyle.value.position=``
+        outlineStyle.value.transform = `translate(0,0px)`
+        outlineStyle.value.right=`${outlineRight}px`
+        outlineStyle.value.width=`${outlintWidth}px`
+        outlineStyle.value.top=`0px`
+        outlineStyle.value.bottom='0px'
+    } else {
+        outlineStyle.value.position=`fixed`
+        outlineStyle.value.right=`${outlineRight}px`
+        outlineStyle.value.width=`${outlintWidth}px`
+        outlineStyle.value.top=`100px`
+        outlineStyle.value.bottom='0px'
+    }
 }
+
+
 
 
 </script>
@@ -176,7 +196,7 @@ const handleScroll = () => {
     </div>
 
     <el-scrollbar ref="scrollbar" height="100vh" @scroll="handleScroll">
-        <el-row :style="{ height: `3vh` }">
+        <el-row :style="{ height: `40vh` }">
             <img style="width: 100%;height: 100%;filter: brightness(0.75);object-fit: cover;"
                 :src="exportImgSrc('../assets/default_background.webp')" />
             <el-text class="mx-1"
@@ -188,22 +208,19 @@ const handleScroll = () => {
                 <el-row :style="{ border: `0px solid red` }" :gutter="0" justify="space-between">
                     <el-col :style="{ border: `0px solid red`, background: `none` }" :span="17"><!--文章内容-->
                         <el-card style="width: 96%;">
-                            <div ref="editor">
-                                <!-- <Editor class="editos" :value="value" :plugins="plugins" :locale="zhHans"
-                                    @change="handleChange" :uploadImages="uploadImage" /> -->
-                                <!-- <Viewer :value="article.articleContent" :plugins="plugins" :locale="zhHans" /> -->
+                            <div ref="editor"><!--文章内容-->
                                 <v-md-preview :text="article.articleContent" ref="editor"></v-md-preview>
-
-
                             </div>
                         </el-card>
-
                     </el-col>
-                    <el-col :style="{ border: `1px solid red` }" :span="7"><!--右侧栏，文章大纲-->
-                        <el-card style="width: 400px;position:fixed;">
+
+                    <el-col :style="{ border: `0px solid red` }" :span="7" ref="rightCol"><!--右侧栏，文章大纲-->
+
+                        <!-- 内容 -->
+                        <el-card ref="outline" :style="outlineStyle">
                             <el-text class="mx-1" size="large" type="primary">这一亩三分地放文章大纲得了</el-text><br><br><br>
                             <el-row justify="center">
-                                <div>
+                                <div><!--文章大纲-->
                                     <div v-for="(anchor, index) in titleList"
                                         :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }"
                                         @click="rollTo(anchor, index)"
@@ -211,20 +228,6 @@ const handleScroll = () => {
                                         <a style="cursor: pointer">{{ anchor.title }}</a>
                                     </div>
                                 </div>
-                                <!-- <div class="navigation">
-                                    <div class="navigation-content" id="permiss">
-                                        <div v-for="(anchor, index) in titles" :key="index + 'art'"
-                                            :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }">
-                                            <a style="cursor: pointer; color: black; margin-left: 20px"
-                                                @click="handleAnchorClick(anchor, index, anchor.indent)">{{ anchor.title
-                                                }}</a>
-                                        </div>
-                                    </div>
-                                </div> -->
-
-
-
-
                             </el-row>
                         </el-card>
                     </el-col>
@@ -279,7 +282,7 @@ const handleScroll = () => {
     font-family: '微软雅黑';
 }
 
-.title-not-active{
+.title-not-active {
     color: black;
     font-size: 14px;
 }
