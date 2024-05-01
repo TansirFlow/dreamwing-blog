@@ -1,10 +1,35 @@
 <script setup>
 import { getArticleByIdService } from '@/api/article';
 import { useRoute } from 'vue-router';
-import { ref, onMounted, onActivated, nextTick, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onActivated } from 'vue'
 import { CirclePlus, Search, Link, House } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { Editor, Viewer } from '@bytemd/vue-next'
+import 'bytemd/dist/index.css'
+import breaks from '@bytemd/plugin-breaks'
+import frontmatter from '@bytemd/plugin-frontmatter'
+import gemoji from '@bytemd/plugin-gemoji'
+import gfm from '@bytemd/plugin-gfm'
+import footnotes from '@bytemd/plugin-footnotes'
+import highlight from '@bytemd/plugin-highlight'
+import math from '@bytemd/plugin-math-ssr'
+import medium from '@bytemd/plugin-medium-zoom'
+import mermaid from '@bytemd/plugin-mermaid'
+import 'juejin-markdown-themes/dist/healer-readable.min.css'
+import zhHans from 'bytemd/locales/zh_Hans.json'
+import 'highlight.js/styles/vs.css'
+/*healer-readable, */
+const plugins = ref([
+    breaks(),
+    frontmatter(),
+    gemoji(),
+    gfm(),
+    highlight(),
+    math(),
+    medium(),
+    mermaid(),
+    footnotes(),
+])
 
 /*
 # SpringBoot屎山
@@ -63,79 +88,16 @@ const getArticleById = async () => {//请求文章
     article.value = result.data;
 }
 
-
-const editor = ref(null)// markdown-对象
-const titleList = ref([])// markdown-文章标题列表
-async function articleData() {// markdown-获取内容
-    await getArticleById()// axios获取内容
-}
-async function getTitle() {// markdown-生成标题
-    await nextTick()
-    const anchors = editor.value.querySelectorAll(// 使用js选择器，获取对应的h标签，组合成列表
-        'h1,h2,h3,h4,h5,h6'
-    )
-    const titles = Array.from(anchors).filter((title) => !!title.innerText.trim());// 删除标题头尾的空格
-    if (!titles.length) {// 当文章h标签为空时，直接返回
-        titleList.value = [];
-        return;
-    }
-    const hTags = Array.from(new Set(titles.map((title) => title.tagName))).sort();// 从h标签属性中，提取相关信息
-    titleList.value = titles.map((el) => ({
-        title: el.innerText, // 标题内容
-        lineIndex: el.getAttribute('data-v-md-line'), // 标签line id
-        indent: hTags.indexOf(el.tagName), // 标签层级
-        height: el.offsetTop, // 标签距离顶部距离
-    }));
-}
-
-const heightTitle = ref(0)// markdown-当前高亮的标题index
-const rollTo = (anchor, index) => {// markdown-标题跳转
-    const { lineIndex } = anchor;// 获取要跳转的标签的lineIndex
-    const heading = editor.value.querySelector(// 查找lineIndex对应的元素对象
-        `.v-md-editor-preview [data-v-md-line="${lineIndex}"]`
-    );
-    if (heading) {// 页面跳转
-        console.log(666)
-        heading.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-    heightTitle.value = index// 修改当前高亮的标题
-}
-
-
 onMounted(() => {
-    articleData()
-    setTimeout(() => {
-        getTitle()
-    }, 1000)
+    getArticleById()
 })
 
-onActivated(() => {
-    articleData()
-    setTimeout(() => {
-        getTitle()
-    }, 1000)
+
+onActivated(() => {//进入页面获取文章(适用于缓存)
+    if (article.value.articleId !== getArticleId()) {
+        getArticleById()
+    }
 })
-const scrollbar = ref(null)
-const handleScroll = () => {
-    // 监听屏幕滚动时防抖（在规定的时间内触发的事件，只执行最后一次，降低性能开销）
-    // let timeOut = null; // 初始化空定时器
-    // return () => {
-    //     clearTimeout(timeOut)   // 频繁操作，一直清空先前的定时器
-    //     timeOut = setTimeout(() => {  // 只执行最后一次事件
-
-    //     }, 500)
-    // }
-    let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
-    console.log(scrollTop)
-    const absList = [] // 各个h标签与当前距离绝对值
-    titleList.value.forEach((item) => {
-        absList.push(Math.abs(item.height - scrollTop))
-    })
-    // 屏幕滚动距离与标题高度最近的index高亮
-    heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
-
-}
-
 
 </script>
 
@@ -175,8 +137,8 @@ const handleScroll = () => {
         </el-menu>
     </div>
 
-    <el-scrollbar ref="scrollbar" height="100vh" @scroll="handleScroll">
-        <el-row :style="{ height: `3vh` }">
+    <el-scrollbar ref="scrollbar" height="100vh">
+        <el-row :style="{ height: `40vh` }">
             <img style="width: 100%;height: 100%;filter: brightness(0.75);object-fit: cover;"
                 :src="exportImgSrc('../assets/default_background.webp')" />
             <el-text class="mx-1"
@@ -188,43 +150,19 @@ const handleScroll = () => {
                 <el-row :style="{ border: `0px solid red` }" :gutter="0" justify="space-between">
                     <el-col :style="{ border: `0px solid red`, background: `none` }" :span="17"><!--文章内容-->
                         <el-card style="width: 96%;">
-                            <div ref="editor">
+                            <div ref="viewRef">
                                 <!-- <Editor class="editos" :value="value" :plugins="plugins" :locale="zhHans"
                                     @change="handleChange" :uploadImages="uploadImage" /> -->
-                                <!-- <Viewer :value="article.articleContent" :plugins="plugins" :locale="zhHans" /> -->
-                                <v-md-preview :text="article.articleContent" ref="editor"></v-md-preview>
-
-
+                                <Viewer :value="article.articleContent" :plugins="plugins" :locale="zhHans" />
                             </div>
                         </el-card>
 
                     </el-col>
                     <el-col :style="{ border: `1px solid red` }" :span="7"><!--右侧栏，文章大纲-->
-                        <el-card style="width: 400px;position:fixed;">
+                        <el-card style="width: 100%;">
                             <el-text class="mx-1" size="large" type="primary">这一亩三分地放文章大纲得了</el-text><br><br><br>
                             <el-row justify="center">
-                                <div>
-                                    <div v-for="(anchor, index) in titleList"
-                                        :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }"
-                                        @click="rollTo(anchor, index)"
-                                        :class="index === heightTitle ? 'title-active' : 'title-not-active'">
-                                        <a style="cursor: pointer">{{ anchor.title }}</a>
-                                    </div>
-                                </div>
-                                <!-- <div class="navigation">
-                                    <div class="navigation-content" id="permiss">
-                                        <div v-for="(anchor, index) in titles" :key="index + 'art'"
-                                            :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }">
-                                            <a style="cursor: pointer; color: black; margin-left: 20px"
-                                                @click="handleAnchorClick(anchor, index, anchor.indent)">{{ anchor.title
-                                                }}</a>
-                                        </div>
-                                    </div>
-                                </div> -->
-
-
-
-
+                                <img style="width: 100px" src="../assets/element-plus-logo.svg" alt="Element logo" />
                             </el-row>
                         </el-card>
                     </el-col>
@@ -271,16 +209,4 @@ const handleScroll = () => {
     padding: 20px;
 }
 
-.title-active {
-    background-color: rgba(0, 0, 0, 0.1);
-    color: black;
-    border-left: 2px solid rgba(0, 0, 0, 0.5);
-    font-size: 14px;
-    font-family: '微软雅黑';
-}
-
-.title-not-active{
-    color: black;
-    font-size: 14px;
-}
 </style>

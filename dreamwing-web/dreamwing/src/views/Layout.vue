@@ -158,7 +158,7 @@ onActivated(() => {
 
     <el-scrollbar height="100vh" @scroll="handleScroll" ref="scrollbar">
         <div class="block text-center">
-            <el-carousel motion-blur height="100vh">
+            <el-carousel motion-blur height="40vh">
                 <el-carousel-item v-for="(picture, key) in pictures" :key="key">
                     <img style="width: 100%;height: 100%;" :src="exportImgSrc(picture.path)" />
                 </el-carousel-item>
@@ -172,7 +172,7 @@ onActivated(() => {
                             <el-card style="width: 96%;">
                                 <div class="card-header">
                                     <el-text class="mx-1" size="large"
-                                        style="font-size: 21px;line-height: 2;cursor:pointer" truncated
+                                        style="font-size: 21px;line-height: 2;cursor:pointer;color:black;" truncated
                                         @click="lookArticleDetail(item.id)">
                                         <b>{{ item.articleTitle }}</b>
                                     </el-text>
@@ -223,7 +223,10 @@ onActivated(() => {
                 </el-row>
                 <el-footer class="footer">
                     <!-- 版权信息 -->
-                    © 2024 DreamWing Blog. All rights reserved.
+                    © 2024 DreamWing Blog. All rights reserved.<br>
+                    <el-link href="https://su.sctes.com/register?code=8cyve3yx9q2vc" target="_blank" size="large">
+                        本站由&nbsp;<el-link type="primary">无畏云科技</el-link>&nbsp;提供免费云加速服务
+                    </el-link>
                 </el-footer>
             </el-col>
         </el-row>
