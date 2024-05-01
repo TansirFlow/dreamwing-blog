@@ -87,7 +87,7 @@ async function getTitle() {// markdown-生成标题
         height: el.offsetTop, // 标签距离顶部距离
     }));
 }
-
+const scrollbar = ref(null)
 const heightTitle = ref(0)// markdown-当前高亮的标题index
 const rollTo = (anchor, index) => {// markdown-标题跳转
     const { lineIndex } = anchor;// 获取要跳转的标签的lineIndex
@@ -97,6 +97,9 @@ const rollTo = (anchor, index) => {// markdown-标题跳转
     if (heading) {// 页面跳转
         console.log(666)
         heading.scrollIntoView({ behavior: "smooth", block: "start" })
+        scrollbar.value
+        let old = scrollbar.value.$refs.wrapRef.scrollTop;
+        scrollbar.value.$refs.wrapRef.scrollTop = old - 100;
     }
     heightTitle.value = index// 修改当前高亮的标题
 }
@@ -117,16 +120,17 @@ onActivated(() => {
         getTitle()
     }, 1000)
 })
-const scrollbar = ref(null)
+
 const outline = ref()
 const rightCol = ref()
 const outlineScrollHeight = ref(0)
-const outlineScrollRef=ref()
+const outlineScrollRef = ref()
 const outlineStyle = ref({
     width: `100%`,
     transform: 'translate(0,0px)',
     'animation-duration': '0s',
-    position: 'fixed'
+    position: 'fixed',
+    borderRadius: `var(--el-border-radius-base)`
 })
 
 const initOutlinePosition = () => {//初始化大纲板块位置
@@ -141,7 +145,7 @@ const initOutlinePosition = () => {//初始化大纲板块位置
     let thisPosY = topPosY - scrollTop;
     outlineStyle.value.top = `${thisPosY}px`
     outlineStyle.value.bottom = '20px'
-    outlineScrollHeight.value=`${windowHeight*0.6-160}px`
+    outlineScrollHeight.value = `${windowHeight * 0.6 - 160}px`
 }
 
 const handleScroll = () => {
@@ -156,19 +160,43 @@ const handleScroll = () => {
     const windowHeight = window.innerHeight;
 
     outlineStyle.value.bottom = '20px'
-    if (scrollTop < 0.4 * windowHeight) {
+    if (scrollTop < 0.3 * windowHeight) {
         let topPosY = windowHeight * 0.4 + 50;
         outlineStyle.value.top = `${topPosY}px`
     } else {
         outlineStyle.value.top = `90px`
-        outlineScrollHeight.value=`${windowHeight-200}px`
+        outlineScrollHeight.value = `${windowHeight - 200}px`
     }
 
-    const outlineScrollTop=outlineScrollRef.value.$refs.wrapRef.scrollTop;
-    
+
+    const outlineScrollTop = outlineScrollRef.value.$refs.wrapRef.scrollTop;
+    const highLightTop = 35 * (heightTitle.value + 1);
+    // console.log("当前高亮标题距离大纲顶部距离"+(highLightTop))
+    // console.log("当前大纲滚动距离"+(outlineScrollTop))
+    console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
+    console.log("大纲滚动高度" + outlineScrollHeight.value)
+    const highLightToScrollAreaTopDistance = highLightTop - outlineScrollTop;
+    if (highLightToScrollAreaTopDistance >= parseInt(outlineScrollHeight.value)) {
+        let delta = parseInt(outlineScrollHeight.value)
+        outlineScrollRef.value.$refs.wrapRef.scrollTop += delta / 2
+    }
+    if (highLightToScrollAreaTopDistance < 0) {
+        let delta = parseInt(outlineScrollHeight.value)
+        outlineScrollRef.value.$refs.wrapRef.scrollTop -= delta / 2
+    }
 }
 
+const circleUrl = ref('../assets/tstx.jpg');
 
+import { BrandGithub, } from '@vicons/tabler'
+import { } from '@vicons/fluent'
+import { } from '@vicons/ionicons4'
+import { LogoTwitter, LogoWechat } from '@vicons/ionicons5'
+import { } from '@vicons/antd'
+import { } from '@vicons/material'
+import { Qq, Github } from '@vicons/fa'
+import { } from '@vicons/carbon'
+import { Icon } from '@vicons/utils'
 
 
 </script>
@@ -227,13 +255,14 @@ const handleScroll = () => {
                                 :style="{ fontSize: `24px` }">文章大纲</el-text><br><br>
                             <el-scrollbar :height="outlineScrollHeight" ref="outlineScrollRef">
                                 <el-row justify="center">
-                                    <div :style="{ width:`100%` }"><!--文章大纲-->
+                                    <div :style="{ width: `100%` }"><!--文章大纲-->
                                         <div v-for="(anchor, index) in titleList"
-                                            :style="{ padding: `6px 0 6px ${anchor.indent * 25+5}px` }"
+                                            :style="{ padding: `6px 0 6px ${anchor.indent * 10 + 5}px` }"
                                             @click="rollTo(anchor, index)"
                                             :class="index === heightTitle ? 'title-active' : 'title-not-active'">
                                             <!-- <a style="cursor: pointer">{{ anchor.title.length>10?anchor.title.slice(0,10):anchor.title }}</a> -->
-                                            <el-text class="mx-1" style="cursor: pointer" truncated>{{ anchor.title }}</el-text>
+                                            <el-text class="mx-1" style="cursor: pointer" truncated>{{ anchor.title
+                                                }}</el-text>
                                         </div>
                                     </div>
                                 </el-row>
@@ -244,25 +273,62 @@ const handleScroll = () => {
                     <!-- <el-row :span="1"></el-row> -->
                     <el-col :style="{ border: `0px solid red`, background: `none`, alignItem: `center` }"
                         :span="13"><!--文章内容-->
-                        <el-card style="width: 100%;">
+                        <el-card :style="{ width: '100%', borderRadius: `var(--el-border-radius-base)` }">
                             <div ref="editor"><!--文章内容-->
                                 <v-md-preview :text="article.articleContent" ref="editor"></v-md-preview>
                             </div>
                         </el-card>
                     </el-col>
                     <!-- <el-row :span="1"></el-row> -->
-                    <el-col :style="{ border: `1px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
-                        <el-card ref="outline">
-                            <el-text class="mx-1" size="large" type="primary">等会再这里写个人信息卡片</el-text><br><br><br>
+                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
+                        <el-card ref="outline" :style="{ borderRadius: `var(--el-border-radius-round)` }">
                             <el-row justify="center">
-                                <div><!--文章大纲-->
-                                    <!-- <div v-for="(anchor, index) in titleList"
-                                        :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }"
-                                        @click="rollTo(anchor, index)"
-                                        :class="index === heightTitle ? 'title-active' : 'title-not-active'">
-                                        <a style="cursor: pointer">{{ anchor.title }}</a>
-                                    </div> -->
-                                </div>
+                                <el-col :span="24">
+                                    <div class="demo-basic--circle">
+                                        <el-row :style="{ width: `100%` }">
+                                            <el-col :span="24"
+                                                :style="{ display: 'flex', border: `0px solid red`, alignItem: `center`, justifyContent: 'center', height: `145px` }">
+                                                <div><br><br>
+                                                    <el-avatar :size="90" :src="exportImgSrc(circleUrl)"
+                                                        :style="{ border: `0px solid red`, boxShadow: `var(--el-box-shadow)` }" />
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                        <el-row
+                                            :style="{ border: `0px solid red`, width: `100%`, borderBottom: `1px solid lightgray`, height: `90px` }">
+                                            <el-col :span="24">
+                                                <el-text class="mx-1"
+                                                    :style="{ width: `100%`, display: 'flex', alignItem: `center`, justifyContent: 'center', fontSize: `21px`, fontFamily: `微软雅黑`, color: `black`, fontWeight: `bold` }"
+                                                    size="large">Tansor</el-text><br>
+                                                <el-text class="mx-1"
+                                                    :style="{ width: `100%`, display: 'flex', alignItem: `center`, justifyContent: 'center', fontSize: `16px`, color: `black` }"
+                                                    size="large">最好的个性签名就是没有个性签名</el-text>
+                                            </el-col>
+                                        </el-row><br>
+                                        <el-row justify="space-between">
+                                            <el-col :span="2"></el-col>
+                                            <el-col :span="6"
+                                                :style="{ display: 'flex', alignItem: `center`, justifyContent: 'center' }">
+                                                <Icon size="35">
+                                                    <Github />
+                                                </Icon>
+                                            </el-col>
+                                            <el-col :span="6"
+                                                :style="{ display: 'flex', alignItem: `center`, justifyContent: 'center' }">
+                                                <Icon size="35">
+                                                    <Qq />
+                                                </Icon>
+                                            </el-col>
+                                            <el-col :span="6"
+                                                :style="{ display: 'flex', alignItem: `center`, justifyContent: 'center' }">
+                                                <Icon size="35">
+                                                    <LogoWechat />
+                                                </Icon>
+                                            </el-col>
+                                            <el-col :span="2"></el-col>
+                                        </el-row>
+                                    </div>
+                                </el-col>
                             </el-row>
                         </el-card>
                     </el-col>
