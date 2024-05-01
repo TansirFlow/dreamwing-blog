@@ -103,6 +103,7 @@ const rollTo = (anchor, index) => {// markdown-标题跳转
 
 
 onMounted(() => {
+    initOutlinePosition()
     articleData()
     setTimeout(() => {
         getTitle()
@@ -110,6 +111,7 @@ onMounted(() => {
 })
 
 onActivated(() => {
+    initOutlinePosition()
     articleData()
     setTimeout(() => {
         getTitle()
@@ -118,12 +120,30 @@ onActivated(() => {
 const scrollbar = ref(null)
 const outline = ref()
 const rightCol = ref()
-const outlineTop = ref(-100)
+const outlineScrollHeight = ref(0)
+const outlineScrollRef=ref()
 const outlineStyle = ref({
     width: `100%`,
     transform: 'translate(0,0px)',
-    'animation-duration': '0s'
+    'animation-duration': '0s',
+    position: 'fixed'
 })
+
+const initOutlinePosition = () => {//初始化大纲板块位置
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    const outlintWidth = parseInt((windowWidth * 20.0 / 24) * 5.0 / 24);
+    const outlineRight = parseInt(windowWidth * 2.0 / 24)
+    outlineStyle.value.left = `${outlineRight}px`
+    outlineStyle.value.width = `${outlintWidth}px`
+    let topPosY = windowHeight * 0.4 + 50;
+    let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
+    let thisPosY = topPosY - scrollTop;
+    outlineStyle.value.top = `${thisPosY}px`
+    outlineStyle.value.bottom = '20px'
+    outlineScrollHeight.value=`${windowHeight*0.6-160}px`
+}
+
 const handleScroll = () => {
     let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
     const absList = [] // 各个h标签与当前距离绝对值
@@ -134,24 +154,18 @@ const handleScroll = () => {
     heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
 
     const windowHeight = window.innerHeight;
-    const windowWidth = window.innerWidth;
-    const outlintWidth=parseInt((windowWidth*18.0/24)*7.0/24);
-    const outlineRight=parseInt(windowWidth*3.0/24)
 
+    outlineStyle.value.bottom = '20px'
     if (scrollTop < 0.4 * windowHeight) {
-        outlineStyle.value.position=``
-        outlineStyle.value.transform = `translate(0,0px)`
-        outlineStyle.value.right=`${outlineRight}px`
-        outlineStyle.value.width=`${outlintWidth}px`
-        outlineStyle.value.top=`0px`
-        outlineStyle.value.bottom='0px'
+        let topPosY = windowHeight * 0.4 + 50;
+        outlineStyle.value.top = `${topPosY}px`
     } else {
-        outlineStyle.value.position=`fixed`
-        outlineStyle.value.right=`${outlineRight}px`
-        outlineStyle.value.width=`${outlintWidth}px`
-        outlineStyle.value.top=`100px`
-        outlineStyle.value.bottom='0px'
+        outlineStyle.value.top = `90px`
+        outlineScrollHeight.value=`${windowHeight-200}px`
     }
+
+    const outlineScrollTop=outlineScrollRef.value.$refs.wrapRef.scrollTop;
+    
 }
 
 
@@ -203,30 +217,51 @@ const handleScroll = () => {
                 :style="{ textAlign: `center`, color: `white`, fontSize: `36px`, position: `absolute`, top: `100px`, bottom: `20px`, left: `0`, right: `0`, border: `0px solid red` }">{{
             article.articleTitle }}</el-text>
         </el-row>
+
         <el-row :style="{ border: `0px solid red`, top: `50px` }" justify="center">
-            <el-col :style="{ border: `0px solid red` }" :span="18">
+            <el-col :style="{ border: `0px solid red` }" :span="20">
                 <el-row :style="{ border: `0px solid red` }" :gutter="0" justify="space-between">
-                    <el-col :style="{ border: `0px solid red`, background: `none` }" :span="17"><!--文章内容-->
-                        <el-card style="width: 96%;">
+                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
+                        <el-card ref="outline" :style="outlineStyle">
+                            <el-text class="mx-1" size="large" type="primary"
+                                :style="{ fontSize: `24px` }">文章大纲</el-text><br><br>
+                            <el-scrollbar :height="outlineScrollHeight" ref="outlineScrollRef">
+                                <el-row justify="center">
+                                    <div :style="{ width:`100%` }"><!--文章大纲-->
+                                        <div v-for="(anchor, index) in titleList"
+                                            :style="{ padding: `6px 0 6px ${anchor.indent * 25+5}px` }"
+                                            @click="rollTo(anchor, index)"
+                                            :class="index === heightTitle ? 'title-active' : 'title-not-active'">
+                                            <!-- <a style="cursor: pointer">{{ anchor.title.length>10?anchor.title.slice(0,10):anchor.title }}</a> -->
+                                            <el-text class="mx-1" style="cursor: pointer" truncated>{{ anchor.title }}</el-text>
+                                        </div>
+                                    </div>
+                                </el-row>
+                            </el-scrollbar>
+
+                        </el-card>
+                    </el-col>
+                    <!-- <el-row :span="1"></el-row> -->
+                    <el-col :style="{ border: `0px solid red`, background: `none`, alignItem: `center` }"
+                        :span="13"><!--文章内容-->
+                        <el-card style="width: 100%;">
                             <div ref="editor"><!--文章内容-->
                                 <v-md-preview :text="article.articleContent" ref="editor"></v-md-preview>
                             </div>
                         </el-card>
                     </el-col>
-
-                    <el-col :style="{ border: `0px solid red` }" :span="7" ref="rightCol"><!--右侧栏，文章大纲-->
-
-                        <!-- 内容 -->
-                        <el-card ref="outline" :style="outlineStyle">
-                            <el-text class="mx-1" size="large" type="primary">这一亩三分地放文章大纲得了</el-text><br><br><br>
+                    <!-- <el-row :span="1"></el-row> -->
+                    <el-col :style="{ border: `1px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
+                        <el-card ref="outline">
+                            <el-text class="mx-1" size="large" type="primary">等会再这里写个人信息卡片</el-text><br><br><br>
                             <el-row justify="center">
                                 <div><!--文章大纲-->
-                                    <div v-for="(anchor, index) in titleList"
+                                    <!-- <div v-for="(anchor, index) in titleList"
                                         :style="{ padding: `10px 0 10px ${anchor.indent * 10}px` }"
                                         @click="rollTo(anchor, index)"
                                         :class="index === heightTitle ? 'title-active' : 'title-not-active'">
                                         <a style="cursor: pointer">{{ anchor.title }}</a>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </el-row>
                         </el-card>
@@ -275,15 +310,16 @@ const handleScroll = () => {
 }
 
 .title-active {
-    background-color: rgba(0, 0, 0, 0.1);
-    color: black;
-    border-left: 2px solid rgba(0, 0, 0, 0.5);
+    background-color: rgba(71, 162, 255, 0.1);
+    color: rgba(71, 162, 255, 1);
+    border-left: 2px solid rgba(71, 162, 255, 1);
     font-size: 14px;
     font-family: '微软雅黑';
 }
 
 .title-not-active {
     color: black;
+    border-left: 2px solid rgba(0, 0, 0, 0);
     font-size: 14px;
 }
 </style>

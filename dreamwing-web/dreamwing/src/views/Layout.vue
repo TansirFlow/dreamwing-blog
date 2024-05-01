@@ -68,8 +68,8 @@ const getArticleList = async () => {
 }
 
 const router = useRouter();
-onMounted(() => {
-    getArticleList()
+onMounted(async () => {
+    await getArticleList()
 })
 
 const pictures = ref([
