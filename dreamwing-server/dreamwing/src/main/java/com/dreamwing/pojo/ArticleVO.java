@@ -1,6 +1,7 @@
 package com.dreamwing.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class ArticleVO {
     private Integer status;
     private Integer type;
     private Integer lookNum;
+    @JsonIgnore
     private String password;
     private String originUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -27,7 +27,13 @@ public class GlobalExceptionHandler {
         String errorMessage="";
         if(e.getMessage().contains("UserMapper")){
             errorMessage = "该用户名已存在";
+        }else if(e.getMessage().contains("CategoryMapper")){
+            errorMessage = "该分类名已存在";
+        }else if(e.getMessage().contains("TagMapper")){
+            errorMessage = "该Tag已存在";
         }
         return Result.error(StringUtils.hasLength(errorMessage)?errorMessage:"操作失败");
     }
+
+
 }

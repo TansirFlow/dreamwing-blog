@@ -122,7 +122,7 @@ const adaptOutlinePosition = () => {
         outlineScrollHeight.value = `${windowHeight - 200}px`
     }
     const outlineScrollTop = outlineScrollRef.value.$refs.wrapRef.scrollTop;
-    const highLightTop = 35 * (heightTitle.value + 1);
+    const highLightTop = 28 * (heightTitle.value + 1);
     // console.log("当前高亮标题距离大纲顶部距离"+(highLightTop))
     // console.log("当前大纲滚动距离"+(outlineScrollTop))
     console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
@@ -276,7 +276,7 @@ import { Icon } from '@vicons/utils'
                                 <el-row justify="center">
                                     <div :style="{ width: `100%` }"><!--文章大纲-->
                                         <div v-for="(anchor, index) in titleList"
-                                            :style="{ padding: `6px 0 6px ${anchor.indent * 10 + 5}px` }"
+                                            :style="{ padding: `0px 0 0px ${anchor.indent * 10 + 5}px`,fontSize:`${(anchor.indent)*3+12}px`,height:`28px`,display: 'flex', alignItem: `center` }"
                                             @click="rollTo(anchor, index)"
                                             :class="index === heightTitle ? 'title-active' : 'title-not-active'">
                                             <!-- <a style="cursor: pointer">{{ anchor.title.length>10?anchor.title.slice(0,10):anchor.title }}</a> -->
@@ -300,7 +300,7 @@ import { Icon } from '@vicons/utils'
                     </el-col>
                     <!-- <el-row :span="1"></el-row> -->
                     <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
-                        <el-card ref="outline" :style="{ borderRadius: `var(--el-border-radius-round)` }">
+                        <el-card ref="outline" :style="{ borderRadius: `0 0 0 0` }"><!--var(--el-border-radius-round)-->
                             <el-row justify="center">
                                 <el-col :span="24">
                                     <div class="demo-basic--circle">
@@ -398,13 +398,13 @@ import { Icon } from '@vicons/utils'
     background-color: rgba(71, 162, 255, 0.1);
     color: rgba(71, 162, 255, 1);
     border-left: 2px solid rgba(71, 162, 255, 1);
-    font-size: 14px;
+    /*font-size: 14px;*/
     font-family: '微软雅黑';
 }
 
 .title-not-active {
     color: black;
     border-left: 2px solid rgba(0, 0, 0, 0);
-    font-size: 14px;
+    /*font-size: 14px;*/
 }
 </style>
