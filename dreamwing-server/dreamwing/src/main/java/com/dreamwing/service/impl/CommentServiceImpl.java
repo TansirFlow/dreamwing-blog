@@ -42,4 +42,9 @@ public class CommentServiceImpl implements CommentService {
         List<CommentVO> commentVOList=commentMapper.getAll();
         return commentVOList;
     }
+
+    @Override
+    public void delete(Integer id) {
+        commentMapper.delete(id);
+    }
 }

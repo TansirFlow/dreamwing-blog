@@ -34,4 +34,10 @@ public class CommentController {
         List<CommentVO> commentVOList=commentService.list();
         return Result.success(commentVOList);
     }
+
+    @PostMapping("/delete/{id}")
+    public Result delete(@PathVariable Integer id){
+        commentService.delete(id);
+        return Result.success();
+    }
 }

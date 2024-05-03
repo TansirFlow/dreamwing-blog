@@ -2,6 +2,7 @@ package com.dreamwing.mapper;
 
 import com.dreamwing.pojo.CommentDTO;
 import com.dreamwing.pojo.CommentVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -24,4 +25,7 @@ public interface CommentMapper {
             "parent_id,is_delete,is_review,user.create_time,user.update_time " +
             "from comment join user on comment.user_id = user.id")
     List<CommentVO> getAll();
+
+    @Delete("delete from comment where id=#{id}")
+    void delete(Integer id);
 }
