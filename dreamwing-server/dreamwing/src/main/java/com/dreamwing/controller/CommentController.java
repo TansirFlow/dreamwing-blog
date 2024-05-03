@@ -1,0 +1,37 @@
+package com.dreamwing.controller;
+
+import com.dreamwing.pojo.CategoryVO;
+import com.dreamwing.pojo.CommentDTO;
+import com.dreamwing.pojo.CommentVO;
+import com.dreamwing.pojo.Result;
+import com.dreamwing.service.CommentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/comment")
+@Validated
+public class CommentController {
+    @Autowired
+    private CommentService commentService;
+    @PostMapping("/add")
+    public Result add(@RequestBody CommentDTO commentDTO){
+        commentService.add(commentDTO);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    public Result<CommentVO> getById(@PathVariable Integer id){
+        CommentVO commentVO= commentService.getById(id);
+        return Result.success(commentVO);
+    }
+
+    @GetMapping("/list")
+    public Result<List<CommentVO>> list(){
+        List<CommentVO> commentVOList=commentService.list();
+        return Result.success(commentVOList);
+    }
+}
