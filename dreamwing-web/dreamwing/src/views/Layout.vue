@@ -64,7 +64,8 @@ const contents = ref([]);//文章列表
 
 const getArticleList = async () => {
     let result = await getArticleListService();
-    contents.value = result.data;
+    console.log(result.data.items)
+    contents.value = result.data.items;
 }
 
 const router = useRouter();
@@ -194,8 +195,8 @@ onActivated(() => {
                                         </el-col>
                                         <el-col :span="15">
                                             <el-space size="large">
-                                                <el-check-tag :checked="true" type="primary" v-for="tags in item.tags"
-                                                    @click="ElMessage.success(tags)">{{ tags }}</el-check-tag>
+                                                <el-check-tag :checked="true" type="primary" v-for="tag in item.tagList"
+                                                    @click="ElMessage.success(tag.name)">{{ tag.name }}</el-check-tag>
                                             </el-space>
                                         </el-col>
                                         <el-col :span="6" style="color:#b1b3b8">
