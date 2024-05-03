@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -24,4 +25,9 @@ public interface TagMapper {
             "user.username as create_user_name " +
             "from tag join user on create_user=user.id")
     List<TagVO> getAll();
+
+
+    void tryToAddTagList(Integer userId,ArrayList<String> tagList);
+
+    List<TagVO> getTagVOListByTagNameList(List<String> tagNameList);
 }

@@ -1,21 +1,16 @@
 package com.dreamwing.controller;
 
 import com.dreamwing.constants.GlobalConstants;
-import com.dreamwing.pojo.Article;
-import com.dreamwing.pojo.ArticleVO;
-import com.dreamwing.pojo.Result;
-import com.dreamwing.pojo.User;
+import com.dreamwing.pojo.*;
 import com.dreamwing.service.ArticleService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -32,26 +27,55 @@ public class ArticleController {
     }
 
     @PostMapping("/add")
-    public Result addArticle(@RequestBody Article article){
-        System.out.println(article);
-        Set<ConstraintViolation<Article>> addViolations = validator.validate(article, Article.AddArticleGroup.class);
+    public Result addArticle(@RequestBody ArticleDTO articleDTO) {
+        System.out.println(articleDTO);
+        Set<ConstraintViolation<ArticleDTO>> addViolations = validator.validate(articleDTO, ArticleDTO.AddArticleGroup.class);
         if (!addViolations.isEmpty()) {
             return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
         }
-        articleService.add(article);
+        articleService.add(articleDTO);
         return Result.success();
     }
 
     @GetMapping("/{id}")
-    public Result<Article> getById(@PathVariable Integer id){
-        Article article=articleService.getById(id);
-        return Result.success(article);
+    public Result<ArticleVO> getById(@PathVariable Integer id) {
+        ArticleVO articleVO = articleService.getById(id);
+        return Result.success(articleVO);
     }
 
 
     @GetMapping
-    public Result<List<ArticleVO>> getList(){
-        List<ArticleVO> list=articleService.getList();
+    public Result<PageBean<ArticleVO>> getList(
+            Integer pageNum,
+            Integer pageSize
+    ) {
+        PageBean<ArticleVO> list = articleService.list(pageNum, pageSize);
         return Result.success(list);
+    }
+
+    @PostMapping("/setTagList/{articleId}")
+    public Result setTagList(@PathVariable Integer articleId, @RequestBody String[] tagList) {
+        articleService.setTagList(articleId,tagList);
+        return Result.success();
+    }
+
+    @PostMapping("/update")
+    public Result updateArticle(@RequestBody ArticleDTO articleDTO) {
+        articleService.updateArticle(articleDTO);
+        return Result.success();
+    }
+
+
+    // 未启用分页查询的垃圾
+    //    @GetMapping("/getList")
+    //    public Result<List<ArticleVO>> getList(){
+    //        List<ArticleVO> list=articleService.getList();
+    //        return Result.success(list);
+    //    }
+
+    @PostMapping("/delete/{id}")
+    public Result deleteArticleById(@PathVariable Integer id){
+        articleService.deleteArticleById(id);
+        return Result.success();
     }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dreamwing.mapper.TagMapper">
+    <insert id="tryToAddTagList">
+        INSERT IGNORE INTO tag (name, create_time, create_user)
+        VALUES
+        <foreach collection="tagList" item="item" separator=",">
+            (#{item}, NOW(), #{userId})
+        </foreach>
+    </insert>
+    <select id="getTagVOListByTagNameList" resultType="com.dreamwing.pojo.TagVO">
+        SELECT * FROM tag
+        WHERE name IN
+        <foreach item="item" collection="tagNameList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

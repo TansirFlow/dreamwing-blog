@@ -7,9 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-public class Article {
+public class ArticleDTO {
     private Integer id;
     private Integer userId;
     private Integer categoryId;
@@ -40,6 +41,7 @@ public class Article {
     LocalDateTime createTime;
     LocalDateTime updateTime;
 
+    private List<TagVO> tagList;
 
     public interface AddArticleGroup {
     }

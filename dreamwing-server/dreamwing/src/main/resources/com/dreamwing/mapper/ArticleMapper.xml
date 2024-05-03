@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dreamwing.mapper.ArticleMapper">
+    <insert id="addTagListToArticle">
+        INSERT INTO article_tag (article_id, tag_id)
+        VALUES
+        <foreach collection="tagList" item="item" separator=",">
+            (#{articleId}, #{item.id})
+        </foreach>
+    </insert>
+    <insert id="add">
+        <selectKey keyProperty="id" resultType="Long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into article(user_id, category_id, article_cover, article_title, article_abstract,
+        article_content, is_delete, status, type, look_num, password, origin_url, create_time,
+        update_time)
+        VALUES (#{userId}, #{categoryId}, #{articleCover}, #{articleTitle}, #{articleAbstract}, #{articleContent},
+        #{isDelete}, #{status}, #{type}, #{lookNum}, #{password}, #{originUrl}, #{createTime}, NOW())
+    </insert>
+    <delete id="deleteByArticleIdAndTagList">
+        DELETE FROM article_tag
+        WHERE article_id=#{articleId} AND tag_id IN
+        <foreach item="item" collection="tagList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>
