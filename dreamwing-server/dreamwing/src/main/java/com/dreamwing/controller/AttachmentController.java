@@ -22,6 +22,7 @@ public class AttachmentController {
 
     @PostMapping("/upload")
     public Result<String> upload(MultipartFile file) {
+        System.out.println(file);
         String url = attachmentService.upload(minioPojo.getBucketName(), file);
         return Result.success(url);
     }

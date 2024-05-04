@@ -26,6 +26,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private AttachmentMapper attachmentMapper;
 
     public String upload(String bucketName, MultipartFile file) {
+        System.out.println(file);
         try {
             //判断桶是否存在
             boolean bucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
