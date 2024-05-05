@@ -27,11 +27,22 @@ const persist = createPersistedState()
 
 import MarkDownIt from 'markdown-it'
 import VMdPreview from '@kangc/v-md-editor/lib/preview';
-import '@kangc/v-md-editor/lib/style/base-editor.css';
 import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
-import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
+import createLineNumbertPlugin from '@kangc/v-md-editor/lib/plugins/line-number/index'
+import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index'
+import createEmojiPlugin from '@kangc/v-md-editor/lib/plugins/emoji/index'
+import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/npm'
+import '@kangc/v-md-editor/lib/style/base-editor.css';
+import '@kangc/v-md-editor/lib/style/preview.css'
+import '@kangc/v-md-editor/lib/theme/style/vuepress.css'
+import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css'
+import '@kangc/v-md-editor/lib/plugins/emoji/emoji.css'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-json'
+import 'katex/dist/katex.min.css'
+import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/cdn';
+import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css';
 const md = new MarkDownIt()
-import Prism from 'prismjs';
 VMdPreview.use(vuepressTheme, {
   Prism,
   extend(md) {
@@ -39,7 +50,16 @@ VMdPreview.use(vuepressTheme, {
     // md.set(option).use(plugin);
   },
 });
-
+// 代码行数
+VMdPreview.use(createLineNumbertPlugin())
+// 代码快速复制
+VMdPreview.use(createCopyCodePlugin())
+// emoji
+VMdPreview.use(createEmojiPlugin())
+// KaTex
+VMdPreview.use(createKatexPlugin())
+// 画图
+VMdPreview.use(createMermaidPlugin())
 app.use(VMdPreview);
 
 
