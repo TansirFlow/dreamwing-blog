@@ -169,6 +169,7 @@ watch(
             <el-container>
                 <el-header :style="{ background: `white`, display: 'flex', alignItem: `center` }">
                     <el-text class="mx-1" :style="{ fontSize: `24px`, color: `black` }">{{ blockName }}</el-text>
+                    
                 </el-header>
                 <el-main>
                     <router-view></router-view>

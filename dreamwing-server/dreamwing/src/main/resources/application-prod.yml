@@ -18,6 +18,11 @@ spring:
       host: localhost
       port: 6379
       password: redis_password
+  mail:
+    host: mail.example.com
+    port: 465
+    username: mail_username
+    password: mail_passwd
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
