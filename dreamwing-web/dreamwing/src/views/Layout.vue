@@ -110,6 +110,7 @@ const handleScroll = () => {
     keepScroll.value = scrollbar.value.$refs.wrapRef.scrollTop;
 }
 onActivated(() => {
+    checkLoginStatus()
     console.log("pos" + keepScroll.value)
     var gotoScroll = keepScroll.value
     setTimeout(function () {
@@ -117,7 +118,34 @@ onActivated(() => {
         scrollbar.value.$refs.wrapRef.scrollTop = gotoScroll;
     }, 10);
 })
+onMounted(()=>{
+    checkLoginStatus()
+})
 
+import { useTokenStore } from '@/stores/token.js'
+const tokenStore = useTokenStore()
+
+const loginStatus=ref(false)
+const checkLoginStatus = () => {
+    if (tokenStore.token) {
+        loginStatus.value=true;
+    } else {
+        loginStatus.value=false;
+    }
+}
+
+const logout=()=>{
+    tokenStore.removeToken()
+    router.push('/')
+}
+
+const gotoLogin=()=>{
+    router.push('/login')
+}
+
+const gotoConsole=()=>{
+    router.push('/console')
+}
 
 </script>
 
@@ -144,9 +172,15 @@ onActivated(() => {
             <div class="flex-grow" />
             <el-sub-menu index="1">
                 <template #title><el-avatar /></template>
-                <el-menu-item index="1-1">管理后台</el-menu-item>
-                <el-menu-item index="1-2">个人中心</el-menu-item>
-                <el-menu-item index="1-3">退出登录</el-menu-item>
+                <div v-if="loginStatus">
+                    <el-menu-item index="1-1" @click="gotoConsole">管理后台</el-menu-item>
+                    <el-menu-item index="1-2">个人中心</el-menu-item>
+                    <el-menu-item index="1-3" @click="logout">退出登录</el-menu-item>
+                </div>
+                <div v-else>
+                    <el-button @click="gotoLogin">登录</el-button>
+                </div>
+
             </el-sub-menu>
             <el-menu-item index="2">
                 <el-button size="large" :icon="Search" circle @click="dialogVisible = true" />

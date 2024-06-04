@@ -17,8 +17,8 @@
         insert into article(user_id, category_id, article_cover, article_title, article_abstract,
         article_content, is_delete, status, type, look_num, password, origin_url, create_time,
         update_time)
-        VALUES (#{userId}, #{categoryId}, #{articleCover}, #{articleTitle}, #{articleAbstract}, #{articleContent},
-        #{isDelete}, #{status}, #{type}, #{lookNum}, #{password}, #{originUrl}, #{createTime}, NOW())
+        VALUES (#{articleDTO.userId}, #{articleDTO.categoryId}, #{articleDTO.articleCover}, #{articleDTO.articleTitle}, #{articleDTO.articleAbstract}, #{articleDTO.articleContent},
+        #{articleDTO.isDelete}, #{articleDTO.status}, #{articleDTO.type}, #{articleDTO.lookNum}, #{articleDTO.password}, #{articleDTO.originUrl}, #{articleDTO.createTime}, NOW())
     </insert>
     <delete id="deleteByArticleIdAndTagList">
         DELETE FROM article_tag

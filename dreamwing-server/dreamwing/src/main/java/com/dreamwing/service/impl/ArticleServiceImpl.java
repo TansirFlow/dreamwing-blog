@@ -40,6 +40,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleDTO.setIsDelete(ArticleConstants.ARTICLE_NOT_DELETE);
         articleDTO.setLookNum(0);
         articleDTO.setCreateTime(LocalDateTime.now());
+        System.out.println(articleDTO);
         Integer articleId = articleMapper.add(articleDTO);
         List<TagVO> tagList = articleDTO.getTagList();
         String[] tagNameList = new String[tagList.size()];

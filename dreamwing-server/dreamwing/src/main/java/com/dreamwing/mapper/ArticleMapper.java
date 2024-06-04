@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface ArticleMapper {
 
-    Integer add(ArticleDTO articleDTO);
+    Integer add(@Param("articleDTO") ArticleDTO articleDTO);
 
     @Select("select article.id as id,user_id,username as author,category_id,category_name,article_cover,article_title,article_abstract," +
             "article_content,type,look_num,article.password as password,origin_url,article.create_time as create_time," +

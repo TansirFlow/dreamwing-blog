@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick } from 'vue'
-import { ElInput } from 'element-plus'
+import { ElInput, ElMessage } from 'element-plus'
 import { Editor, Viewer } from '@bytemd/vue-next'
 import 'bytemd/dist/index.css'
 import breaks from '@bytemd/plugin-breaks'
@@ -15,6 +15,7 @@ import mermaid from '@bytemd/plugin-mermaid'
 import 'juejin-markdown-themes/dist/juejin.min.css'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import 'highlight.js/styles/vs.css'
+import {getCategoryListService,addArticleService} from '@/api/console/editArticle'
 
 const plugins = ref([
     breaks(),
@@ -62,7 +63,7 @@ const handleInputConfirm = () => {
 }
 
 const articleTitle = ref('')
-const articleCategoryId = ref('默认分类')
+const articleCategoryId = ref('1')
 const articleCategoryList = ref([
     {
         id: "1",
@@ -90,7 +91,7 @@ const articleCategoryList = ref([
     },
 ])
 
-const articleTypeId = ref('原创')
+const articleTypeId = ref('1')
 const articleType = ref([
     {
         id: '1',
@@ -105,6 +106,8 @@ const articleType = ref([
         type: '翻译'
     },
 ])
+
+const articleStatus=ref("1") //文章状态值
 import { uploadImageService } from '@/api/console/editArticle'
 
 const uploadImages=async (file)=>{
@@ -123,6 +126,43 @@ const uploadImage = async (files) => {
         }
     ]
 }
+
+const getCategoryList=async ()=>{
+    let result=await getCategoryListService()
+    articleCategoryList.value=result.data
+}
+
+getCategoryList()
+
+const addArticle =async ()=>{
+    /*
+private Integer id;
+    private Integer userId;
+    private Integer categoryId;
+    private String articleCover;
+    private String articleTitle;
+    private String articleAbstract;
+    private String articleContent;
+    private Integer isDelete;
+    private Integer status;
+    private Integer type;
+    private Integer lookNum;
+    private String password;
+    private String originUrl;
+    private List<TagVO> tagList;
+    */
+    const articleItem={
+        "articleTitle":articleTitle.value,
+        "articleContent":value.value,
+        "status":'1',
+        "type":'1',
+        "tagList":dynamicTags.value
+    }
+    console.log(articleItem)
+    let result=await addArticleService(articleItem);
+    ElMessage.success("发布成功")
+}
+
 </script>
 <template>
     <el-row :style="{ width: `100%` }" justify="space-between">
@@ -155,6 +195,7 @@ const uploadImage = async (files) => {
                 <el-button v-else class="button-new-tag" @click="showInput">
                     + 标签
                 </el-button>
+                <el-button @click="addArticle">发布</el-button>
             </div>
         </el-col>
     </el-row><br>

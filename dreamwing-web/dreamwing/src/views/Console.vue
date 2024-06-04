@@ -11,7 +11,7 @@ import {
     FullScreen,
     ChatLineSquare
 } from '@element-plus/icons-vue'
-import { ref, onMounted,watch } from 'vue'
+import { ref, onMounted, watch, onActivated } from 'vue'
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
 import { } from '@vicons/tabler'
 import { } from '@vicons/fluent'
@@ -22,6 +22,8 @@ import { } from '@vicons/material'
 import { } from '@vicons/fa'
 import { } from '@vicons/carbon'
 import { Icon } from '@vicons/utils'
+import {getUserDetailService} from '@/api/console'
+import { useTokenStore } from '@/stores/token.js'
 
 const handleOpen = (key, keyPath) => {
     console.log(key, keyPath)
@@ -29,6 +31,8 @@ const handleOpen = (key, keyPath) => {
 const handleClose = (key, keyPath) => {
     console.log(key, keyPath)
 }
+
+const input=ref() //搜索input
 
 const blockName = ref('');//板块名称，显示在右边顶部
 
@@ -71,10 +75,30 @@ const handleSelect = (index) => {
     handleBlockName(index)
 }
 
+
+
+
+const userDetailInfo=ref({})
+
+const getUserDetail=async ()=>{
+    let result=await getUserDetailService()
+    console.log("result",result)
+    userDetailInfo.value=result.data
+    console.log("userDetailInfo",userDetailInfo)
+}
+
+async function userDetail() {// markdown-获取内容
+    await getUserDetail()// axios获取内容
+}
+
+
 onMounted(() => {
-    console.log("hahaha" + route.name)
     handleBlockName(route.path)
+    userDetail()
 });
+onActivated(()=>{
+    userDetail()
+})
 watch(
     () => router.currentRoute.value,
     (newValue) => {
@@ -82,6 +106,15 @@ watch(
     },
     { immediate: true }
 )
+
+const tokenStore=useTokenStore()
+const logout=()=>{
+    tokenStore.removeToken()
+    router.push('/login')
+}
+
+
+
 
 </script>
 <template>
@@ -168,8 +201,35 @@ watch(
             </el-aside>
             <el-container>
                 <el-header :style="{ background: `white`, display: 'flex', alignItem: `center` }">
-                    <el-text class="mx-1" :style="{ fontSize: `24px`, color: `black` }">{{ blockName }}</el-text>
-                    
+                    <el-row justify="space-between" :style="{ width:`100%`, display: 'flex'}">
+                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'left',border:`1px solid red`}">
+                            <el-text class="mx-1" :style="{ fontSize: `24px`, color: `black` }">{{ blockName
+                                }}</el-text>
+                        </el-col>
+                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'right',border:`1px solid red`}">
+                            <el-dropdown :hide-on-click="false" :style="{display: 'flex',alignItem: `center`,justifyContent: 'right',border:`1px solid red`,width:`140px`,height:`50px`}">
+                                <span class="el-dropdown-link">
+                                    <el-row :style="{display:`flex`,width:`100%`}">
+                                        <el-col :span="12">
+                                            <el-avatar :size="50" />
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-text class="mx-1" :style="{display: 'flex',
+                                            alignItem: `center`,justifyContent: 'right',height:`50px`,border:`1px solid red`}">{{ userDetailInfo.username }}</el-text>
+                                        </el-col>
+                                    </el-row>
+                                    
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item>修改信息</el-dropdown-item>
+                                        <el-dropdown-item>修改密码</el-dropdown-item>
+                                        <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </el-col>
+                    </el-row>
                 </el-header>
                 <el-main>
                     <router-view></router-view>
@@ -179,4 +239,15 @@ watch(
     </div>
 
 </template>
-<style></style>
+<style>
+.example-showcase .el-dropdown+.el-dropdown {
+    margin-left: 15px;
+}
+
+.example-showcase .el-dropdown-link {
+    cursor: pointer;
+    color: var(--el-color-primary);
+    display: flex;
+    align-items: center;
+}
+</style>
