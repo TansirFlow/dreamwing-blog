@@ -15,6 +15,12 @@ import SystemSettingVue from '@/views/console/SystemSetting.vue'
 import SystemAllVue from '@/views/console/SystemAll.vue'
 import ConsoleEditArticleVue from '@/views/console/EditArticle.vue'
 
+
+import MyInfoVue from '@/views/usercenter/MyInfo.vue'
+
+
+
+
 const routes = [
     { path: '/', name: 'index', component: LayoutVue, meta: { keepAlive: true } },
     { path: '/login', name: 'login', component: LoginVue, meta: { keepAlive: true } },
@@ -44,7 +50,11 @@ const routes = [
             { path: '/console/editArticle', name: '编辑文章', component: ConsoleEditArticleVue }
         ]
     },
-    { path: '/usercenter', name: 'usercenter', component: UserCenterVue, meta: { keepAlive: true } }
+    {
+        path: '/uc', name: 'usercenter', component: UserCenterVue, meta: { keepAlive: true }, children: [
+            { path: '/uc/info', name: '个人中心', component: MyInfoVue }
+        ]
+    }
 ]
 
 const router = createRouter({

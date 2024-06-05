@@ -3,7 +3,7 @@ import { ref, onMounted, onActivated } from 'vue'
 import { CirclePlus, Search, Link, House, Clock, User } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router';
-import { getArticleListService } from '@/api/layout'
+import { getArticleListService, getCategoryListService } from '@/api/layout'
 const activeIndex = ref('1')
 const handleSelect = (key, keyPath) => {
     console.log(key, keyPath)
@@ -71,26 +71,9 @@ const getArticleList = async () => {
 const router = useRouter();
 onMounted(async () => {
     await getArticleList()
+    await loadCategoryList()
+    await checkLoginStatus()
 })
-
-const pictures = ref([
-    {
-        id: 1,
-        path: '../assets/1.webp'
-    },
-    {
-        id: 2,
-        path: '../assets/2.jpg'
-    },
-    {
-        id: 3,
-        path: '../assets/3.webp'
-    },
-    {
-        id: 4,
-        path: '../assets/4.webp'
-    },
-])
 
 const exportImgSrc = (src) => {
     if (src) {
@@ -110,6 +93,7 @@ const handleScroll = () => {
     keepScroll.value = scrollbar.value.$refs.wrapRef.scrollTop;
 }
 onActivated(() => {
+    loadCategoryList()
     checkLoginStatus()
     console.log("pos" + keepScroll.value)
     var gotoScroll = keepScroll.value
@@ -118,34 +102,48 @@ onActivated(() => {
         scrollbar.value.$refs.wrapRef.scrollTop = gotoScroll;
     }, 10);
 })
-onMounted(()=>{
-    checkLoginStatus()
-})
 
 import { useTokenStore } from '@/stores/token.js'
 const tokenStore = useTokenStore()
 
-const loginStatus=ref(false)
+const loginStatus = ref(false)
 const checkLoginStatus = () => {
     if (tokenStore.token) {
-        loginStatus.value=true;
+        loginStatus.value = true;
     } else {
-        loginStatus.value=false;
+        loginStatus.value = false;
     }
 }
 
-const logout=()=>{
+const logout = () => {
     tokenStore.removeToken()
     router.push('/')
 }
 
-const gotoLogin=()=>{
+const gotoLogin = () => {
     router.push('/login')
 }
 
-const gotoConsole=()=>{
+const gotoConsole = () => {
     router.push('/console')
 }
+
+const gotoUserCenter=()=>{
+    router.push('/uc')
+}
+
+const categoryList = ref()
+const loadCategoryList = async () => {
+    let result = await getCategoryListService();
+    categoryList.value = result.data;
+}
+
+
+
+const handleCategorySelect=(index)=>{
+    ElMessage.success(`点击了${index}`)
+}
+const activeCategoryIndex=ref(1)
 
 </script>
 
@@ -174,7 +172,7 @@ const gotoConsole=()=>{
                 <template #title><el-avatar /></template>
                 <div v-if="loginStatus">
                     <el-menu-item index="1-1" @click="gotoConsole">管理后台</el-menu-item>
-                    <el-menu-item index="1-2">个人中心</el-menu-item>
+                    <el-menu-item index="1-2" @click="gotoUserCenter">个人中心</el-menu-item>
                     <el-menu-item index="1-3" @click="logout">退出登录</el-menu-item>
                 </div>
                 <div v-else>
@@ -192,19 +190,45 @@ const gotoConsole=()=>{
     </div>
 
     <el-scrollbar height="100vh" @scroll="handleScroll" ref="scrollbar">
-        <div class="block text-center">
-            <el-carousel motion-blur height="40vh">
-                <el-carousel-item v-for="(picture, key) in pictures" :key="key">
-                    <img style="width: 100%;height: 100%;" :src="exportImgSrc(picture.path)" />
-                </el-carousel-item>
-            </el-carousel>
-        </div>
         <el-row :style="{ border: `0px solid red`, top: `100px` }" justify="center">
             <el-col :style="{ border: `0px solid red` }" :span="18">
                 <el-row :style="{ border: `0px solid red` }" :gutter="0" justify="space-between">
-                    <el-col :style="{ border: `0px solid red`, background: `none` }" :span="17"><!--文章条目-->
+                    <el-col :style="{ border: `0px solid red` }" :span="4"><!--左侧栏-->
+                        <el-affix :offset="100">
+                            <el-card style="width: 100%;">
+                                <el-menu :style="{borderRight:`none`}"
+                                :default-active="activeCategoryIndex"
+                                class="el-menu-demo"
+                                @select="handleCategorySelect"
+                                >
+                                    <!-- <div v-for="item in categoryList" :key="item.id">
+                                        <el-card style="width: 100%;">
+                                            <div>
+                                                <el-text style="font-size: 16px;cursor:pointer;color:black;" truncated>
+                                                    <b>{{ item.categoryName }}</b>
+                                                </el-text>
+                                            </div>
+                                        </el-card>
+                                        <br>
+                                    </div> -->
+
+                                    <el-menu-item v-for="item in categoryList" :key="item.id" :index="item.id">
+                                        <el-icon><icon-menu /></el-icon>
+                                        <span :style="{fontSize:`18px`}">{{ item.categoryName }}</span>
+                                    </el-menu-item>
+                                </el-menu>
+
+
+
+
+
+
+                            </el-card>
+                        </el-affix>
+                    </el-col>
+                    <el-col :style="{ border: `0px solid red`, background: `none` }" :span="14"><!--文章条目-->
                         <div v-for="item in contents" :key="item.id">
-                            <el-card style="width: 96%;">
+                            <el-card style="width: 100%;">
                                 <div class="card-header">
                                     <el-text class="mx-1" size="large"
                                         style="font-size: 21px;line-height: 2;cursor:pointer;color:black;" truncated
@@ -248,7 +272,7 @@ const gotoConsole=()=>{
                             <br>
                         </div>
                     </el-col>
-                    <el-col :style="{ border: `0px solid red` }" :span="7"><!--右侧栏-->
+                    <el-col :style="{ border: `0px solid red` }" :span="5"><!--右侧栏-->
                         <el-card style="width: 100%;">
                             <el-row justify="center">
                                 <img style="width: 100px" src="../assets/element-plus-logo.svg" alt="Element logo" />
@@ -297,4 +321,5 @@ const gotoConsole=()=>{
     background-color: #f5f5f5;
     padding: 20px;
 }
+
 </style>

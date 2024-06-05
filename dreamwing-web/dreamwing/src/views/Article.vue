@@ -276,7 +276,7 @@ import { Icon } from '@vicons/utils'
                                 <el-row justify="center">
                                     <div :style="{ width: `100%` }"><!--文章大纲-->
                                         <div v-for="(anchor, index) in titleList"
-                                            :style="{ padding: `0px 0 0px ${anchor.indent * 10 + 5}px`,fontSize:`${(anchor.indent)*3+12}px`,height:`28px`,display: 'flex', alignItem: `center` }"
+                                            :style="{ padding: `0px 0 0px ${anchor.indent * 10 + 5}px`, fontSize: `${(anchor.indent) * 3 + 12}px`, height: `28px`, display: 'flex', alignItem: `center` }"
                                             @click="rollTo(anchor, index)"
                                             :class="index === heightTitle ? 'title-active' : 'title-not-active'">
                                             <!-- <a style="cursor: pointer">{{ anchor.title.length>10?anchor.title.slice(0,10):anchor.title }}</a> -->
@@ -286,7 +286,6 @@ import { Icon } from '@vicons/utils'
                                     </div>
                                 </el-row>
                             </el-scrollbar>
-
                         </el-card>
                     </el-col>
                     <!-- <el-row :span="1"></el-row> -->
@@ -299,7 +298,7 @@ import { Icon } from '@vicons/utils'
                         </el-card>
                     </el-col>
                     <!-- <el-row :span="1"></el-row> -->
-                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
+                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--右侧栏，作者信息-->
                         <el-card ref="outline" :style="{ borderRadius: `0 0 0 0` }"><!--var(--el-border-radius-round)-->
                             <el-row justify="center">
                                 <el-col :span="24">

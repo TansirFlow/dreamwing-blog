@@ -19,7 +19,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 "/user/register/getVerifyCode",
                 "/user/findPwd/getVerifyCode",
                 "/user/findPwd",
-                "/article"
+                "/article",
+                "/article/{id}",
+                "/category/list"
         );
     }
 }
