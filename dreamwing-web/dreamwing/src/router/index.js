@@ -17,7 +17,7 @@ import ConsoleEditArticleVue from '@/views/console/EditArticle.vue'
 
 
 import MyInfoVue from '@/views/usercenter/MyInfo.vue'
-
+import MyArticleVue from '@/views/usercenter/MyArticle.vue'
 
 
 
@@ -52,7 +52,8 @@ const routes = [
     },
     {
         path: '/uc', name: 'usercenter', component: UserCenterVue, meta: { keepAlive: true }, children: [
-            { path: '/uc/info', name: '个人中心', component: MyInfoVue }
+            { path: '/uc/info', name: '个人中心', component: MyInfoVue },
+            {path:'/uc/article',name:'我的文章',component:MyArticleVue}
         ]
     }
 ]

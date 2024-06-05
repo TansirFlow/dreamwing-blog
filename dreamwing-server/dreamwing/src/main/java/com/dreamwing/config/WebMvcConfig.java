@@ -21,7 +21,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 "/user/findPwd",
                 "/article",
                 "/article/{id}",
-                "/category/list"
+                "/category/list",
+                "/public/**"
         );
     }
 }
