@@ -21,6 +21,7 @@ const iconStyle = computed(() => {
     }
 })
 const size = ref('large')
+
 const blockMargin = computed(() => {
     const marginMap = {
         large: '32px',
@@ -68,8 +69,8 @@ const getUserDetail=async ()=>{
     console.log("userDetailInfo",userDetailInfo)
 }
 
-async function userDetail() {// markdown-获取内容
-    await getUserDetail()// axios获取内容
+async function userDetail() {
+    await getUserDetail()
 }
 userDetail()
 

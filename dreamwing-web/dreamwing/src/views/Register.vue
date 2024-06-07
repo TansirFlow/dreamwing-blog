@@ -4,6 +4,10 @@ import { ElMessage } from 'element-plus'
 import { User, Lock,Message,CircleCheck } from '@element-plus/icons-vue'
 import router from '@/router'
 import { getRegisterVerifyCodeService, userRegisterService } from '@/api/user';
+
+
+
+// 注册表单数据
 const registerData = ref({
     username: '',
     inputPassword: '',
@@ -12,17 +16,19 @@ const registerData = ref({
     verifyCode: '',
 })
 
-
+// 获取注册的验证码
 const getRegisterVerifyCode=async ()=>{
     let result=await getRegisterVerifyCodeService(registerData);
     ElMessage.success(result.msg?result.msg:'操作成功');
 }
 
+// 注册操作
 const register=async()=>{
     let result=await userRegisterService(registerData);
     ElMessage.success(result.msg?result.msg:'操作成功');
 }
 
+// 检查密码输入是否匹配（后续使用检验规则来替代）
 const checkRePassword=(rule,value,callback)=>{
     if(value===''){
         callback(new Error('请再次输入密码'))
@@ -33,6 +39,7 @@ const checkRePassword=(rule,value,callback)=>{
     }
 }
 
+// 表单输入校验规则
 const rules={
     username:[
         {required:true,message:'请输入用户名',trigger:'blur'},

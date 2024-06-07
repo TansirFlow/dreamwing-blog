@@ -15,8 +15,20 @@ import mermaid from '@bytemd/plugin-mermaid'
 import 'juejin-markdown-themes/dist/juejin.min.css'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import 'highlight.js/styles/vs.css'
-import {getCategoryListService,addArticleService} from '@/api/console/editArticle'
+import { addArticleService} from '@/api/console/editArticle'
+import { getCategoryListService, getArticleStatusListService, getArticleTypeListService } from '@/api/public'
 
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------------byteMD编辑器相关--------------------------------------------------
 const plugins = ref([
     breaks(),
     frontmatter(),
@@ -28,86 +40,50 @@ const plugins = ref([
     mermaid(),
     footnotes(),
 ])
-const value = ref('')
+const articleContent = ref('')
 const components = [
     Viewer, Editor
 ]
 const handleChange = (v) => {
-    value.value = v
+    articleContent.value = v
 }
 
 
 
-const inputValue = ref('')
-const dynamicTags = ref([])
-const inputVisible = ref(false)
-const InputRef = ref('')
 
-const handleClose = (tag) => {
+// -----------------------------------------------------------动态tag编辑--------------------------------------------------
+// 标签输入框输入内容
+const tagInputValue = ref('')
+// 标签列表
+const dynamicTags = ref([])
+// 切换标签输入框显示与否
+const inputVisible = ref(false)
+// 标签输入框组件
+const InputRef = ref('')
+// 处理tag输入框关闭
+const handleTagInputClose = (tag) => {
     dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1)
 }
-
+// 显示tag
 const showInput = () => {
     inputVisible.value = true
     nextTick(() => {
         InputRef.value.input.focus()
     })
 }
-
+// 处理tag输入确认
 const handleInputConfirm = () => {
-    if (inputValue.value) {
-        dynamicTags.value.push(inputValue.value)
+    if (tagInputValue.value) {
+        dynamicTags.value.push(tagInputValue.value)
     }
     inputVisible.value = false
-    inputValue.value = ''
+    tagInputValue.value = ''
 }
 
-const articleTitle = ref('')
-const articleCategoryId = ref('1')
-const articleCategoryList = ref([
-    {
-        id: "1",
-        categoryName: "默认分类",
-        createTime: "2024-05-01",
-        updateTime: "",
-        createUser: "1",
-        createUserName: "Tansor"
-    },
-    {
-        id: "2",
-        categoryName: "计算机技术",
-        createTime: "2024-05-01",
-        updateTime: "",
-        createUser: "1",
-        createUserName: "Tansor"
-    },
-    {
-        id: "3",
-        categoryName: "人文地理",
-        createTime: "2024-05-01",
-        updateTime: "",
-        createUser: "1",
-        createUserName: "Tansor"
-    },
-])
 
-const articleTypeId = ref('1')
-const articleType = ref([
-    {
-        id: '1',
-        type: '原创'
-    },
-    {
-        id: '2',
-        type: '转载'
-    },
-    {
-        id: '3',
-        type: '翻译'
-    },
-])
 
-const articleStatus=ref("1") //文章状态值
+
+// -----------------------------------------------------图片粘贴自动上传----------------------------------------------------------
 import { uploadImageService } from '@/api/console/editArticle'
 
 const uploadImages=async (file)=>{
@@ -127,35 +103,53 @@ const uploadImage = async (files) => {
     ]
 }
 
-const getCategoryList=async ()=>{
-    let result=await getCategoryListService()
-    articleCategoryList.value=result.data
-}
 
+// ----------------------------------------------------文章相关处理-------------------------------------------------
+// 文章标题输入
+const articleTitle = ref('')
+// 文章分类
+const categoryValue = ref('')
+// 文章状态
+const statusValue = ref('')
+// 文章类别
+const typeValue = ref('')
+
+// 文章分类列表
+const categoryList = ref()
+
+// 获取文章分类列表
+const getCategoryList = async () => {
+    let result = await getCategoryListService()
+    categoryList.value = result.data;
+}
 getCategoryList()
 
+// 文章状态列表
+const articleStatusList = ref()
+
+// 获取文章状态列表
+const getArticleStatusList = async () => {
+    let result = await getArticleStatusListService();
+    articleStatusList.value = result.data
+}
+getArticleStatusList()
+
+// 文章类型列表
+const articleTypeList = ref()
+
+// 获取文章类型列表
+const getArticleTypeList = async () => {
+    let result = await getArticleTypeListService()
+    articleTypeList.value = result.data
+}
+getArticleTypeList()
+
 const addArticle =async ()=>{
-    /*
-private Integer id;
-    private Integer userId;
-    private Integer categoryId;
-    private String articleCover;
-    private String articleTitle;
-    private String articleAbstract;
-    private String articleContent;
-    private Integer isDelete;
-    private Integer status;
-    private Integer type;
-    private Integer lookNum;
-    private String password;
-    private String originUrl;
-    private List<TagVO> tagList;
-    */
     const articleItem={
         "articleTitle":articleTitle.value,
-        "articleContent":value.value,
-        "status":'1',
-        "type":'1',
+        "articleContent":articleContent.value,
+        "status":statusValue.value,
+        "type":typeValue.value,
         "tagList":dynamicTags.value
     }
     console.log(articleItem)
@@ -167,17 +161,22 @@ private Integer id;
 <template>
     <el-row :style="{ width: `100%` }" justify="space-between">
         <el-col :span="2">
-            <el-select v-model="articleCategoryId" placeholder="Select" size="large" style="width: 100%">
-                <el-option v-for="item in articleCategoryList" :key="item.id" :label="item.categoryName"
-                    :value="item.categoryName" />
+            <el-select v-model="categoryValue" placeholder="Select" size="large" style="width: 100%">
+                <el-option v-for="item in categoryList" :key="item.id" :label="item.categoryName"
+                    :value="item.id" />
             </el-select>
         </el-col>
         <el-col :span="2">
-            <el-select v-model="articleTypeId" placeholder="Select" size="large" style="width: 100%">
-                <el-option v-for="item in articleType" :key="item.id" :label="item.type" :value="item.type" />
+            <el-select v-model="statusValue" placeholder="Select" size="large" style="width: 100%">
+                <el-option v-for="item in articleStatusList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="2">
+            <el-select v-model="typeValue" placeholder="Select" size="large" style="width: 100%">
+                <el-option v-for="item in articleTypeList" :key="item.id" :label="item.name" :value="item.id" />
+            </el-select>
+        </el-col>
+        <el-col :span="8">
             <el-input v-model="articleTitle" style="width: 100%" maxlength="30" size="large" placeholder="文章标题"
                 show-word-limit type="text" />
         </el-col>
@@ -187,10 +186,10 @@ private Integer id;
         <el-col :span="7">
             <div class="flex gap-2" style="width:100%;line-height: 2.3;">
                 <el-tag v-for="tag in dynamicTags" :key="tag" closable :disable-transitions="false" size="large"
-                    @close="handleClose(tag)">
+                    @close="handleTagInputClose(tag)">
                     {{ tag }}
                 </el-tag>
-                <el-input v-if="inputVisible" ref="InputRef" v-model="inputValue" class="w-20"
+                <el-input v-if="inputVisible" ref="InputRef" v-model="tagInputValue" class="w-20"
                     :style="{ width: `100px` }" @keyup.enter="handleInputConfirm" @blur="handleInputConfirm" />
                 <el-button v-else class="button-new-tag" @click="showInput">
                     + 标签
@@ -201,7 +200,7 @@ private Integer id;
     </el-row><br>
     <el-row :style="{ width: `100%` }">
         <el-col :span="24">
-            <Editor class="editos" :value="value" :plugins="plugins" :locale="zhHans" @change="handleChange"
+            <Editor class="editos" :value="articleContent" :plugins="plugins" :locale="zhHans" @change="handleChange"
                 :class="bytemd" :uploadImages="uploadImage" />
         </el-col>
 

@@ -1,20 +1,22 @@
 <script setup>
 import {
     Menu as IconMenu,
-    Location,
-    Odometer,
     Document,
-    ChatLineRound,
     Folder,
     User,
-    Setting,
-    FullScreen,
     ChatLineSquare
 } from '@element-plus/icons-vue'
-import { ref, onMounted, watch, onActivated } from 'vue'
-import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router';
 import { getUserDetailService }  from '@/api/userCenter.js'
+import { useTokenStore } from '@/stores/token.js'
+const route = useRoute();
+const router = useRouter()
+const tokenStore=useTokenStore()
 
+
+
+// -----------------------------------------------导入媒体文件--------------------------------------------------
 import { } from '@vicons/tabler'
 import { } from '@vicons/fluent'
 import { } from '@vicons/ionicons4'
@@ -25,58 +27,66 @@ import { } from '@vicons/fa'
 import { } from '@vicons/carbon'
 import { Icon } from '@vicons/utils'
 
-import { useTokenStore } from '@/stores/token.js'
 
-const route = useRoute();
-const router = useRouter()
 
-const handleOpen = (key, keyPath) => {
+// ------------------------------------------------------板块与路由---------------------------------------------------------
+
+// 处理左侧菜单打开事件
+const handleLeftMenuOpen = (key, keyPath) => {
     console.log(key, keyPath)
 }
-const handleClose = (key, keyPath) => {
+// 处理左侧菜单关闭事件
+const handleLeftMenuClose = (key, keyPath) => {
     console.log(key, keyPath)
 }
-
-
-const blockName = ref('');//板块名称，显示在右边顶部
-const handleBlockName = (index) => {
-    let name_t = ""
-    switch (index) {
-        case "/uc/info":
-            name_t = "个人中心";
-            break;
-        case "/uc/article":
-            name_t = "我的文章";
-            break;
-        case "/uc/talk":
-            name_t = "我的说说";
-            break;
-        case "/uc/attachment":
-            name_t = "我的附件";
-            break;
-    }
-    blockName.value = name_t;
+// 处理左侧菜单选中事件
+const handleLeftMenuSelect = (index) => {
+    getBlockNameByPath(index)
 }
 
-const handleSelect = (index) => {
-    handleBlockName(index)
-}
+//板块名称，显示在右边板块顶部
+const blockName = ref('');
 
-
-onMounted(() => {
-    handleBlockName(route.path)
-});
-
-watch(
-    () => router.currentRoute.value,
-    (newValue) => {
-        handleBlockName(newValue.path)
+// 板块数据
+const blockList=ref([
+    {
+        index:"0",
+        path:"/uc/info",
+        name:"个人中心"
     },
-    { immediate: true }
-)
+    {
+        index:"1",
+        path:"/uc/article",
+        name:"我的文章"
+    },
+    {
+        index:"2",
+        path:"/uc/talk",
+        name:"我的说说"
+    },
+    {
+        index:"3",
+        path:"/uc/attachment",
+        name:"我的附件"
+    }
+])
 
+// 通过索引信息获得板块名称
+const getBlockNameByPath = (path) => {
+    for(let i=0;i<blockList.value.length;++i){
+        if(path===blockList.value[i].path){
+            blockName.value=blockList.value[i].name
+            break
+        }
+    }
+}
+
+
+// --------------------------------------------------账户相关-------------------------------------------
+// 当前登录用户的详细信息
 const userDetailInfo=ref({})
 
+// 获取当前登录用户详细信息
 const getUserDetail=async ()=>{
     let result=await getUserDetailService()
     console.log("result",result)
@@ -84,24 +94,36 @@ const getUserDetail=async ()=>{
     console.log("userDetailInfo",userDetailInfo)
 }
 
-async function userDetail() {// markdown-获取内容
-    await getUserDetail()// axios获取内容
-}
-userDetail()
+getUserDetail()
 
-const tokenStore=useTokenStore()
+
+// 用户注销登录
 const logout=()=>{
     tokenStore.removeToken()
     router.push('/login')
 }
+
+
+// -----------------------------------------------------------钩子函数---------------------------------------------------
+onMounted(() => {
+    getBlockNameByPath(route.path)
+});
+
+// watch(
+//     () => router.currentRoute.value,
+//     (newValue) => {
+//         getBlockNameByIndex(newValue.path)
+//     },
+//     { immediate: true }
+// )
 
 </script>
 <template>
     <div class="common-layout">
         <el-container>
             <el-aside width="250px" :style="{ background: `white`, height: `100vh`, border: `0px solid red` }">
-                <el-menu :style="{ height: `80vh` }" default-active="1" class="el-menu-vertical-demo" @open="handleOpen" 
-                    @select="handleSelect" @close="handleClose" router>
+                <el-menu :style="{ height: `80vh` }" default-active="1" class="el-menu-vertical-demo" @open="handleLeftMenuOpen" 
+                    @select="handleLeftMenuSelect" @close="handleLeftMenuClose" router>
                     <br>
                     <el-text class="mx-1" type="primary"
                         :style="{ fontSize: `36px`, display: 'flex', alignItem: `center`, justifyContent: 'center', height: `50px` }">DW

@@ -14,15 +14,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor).excludePathPatterns(
+                "/public/**",
                 "/user/login",
                 "/user/register",
                 "/user/register/getVerifyCode",
                 "/user/findPwd/getVerifyCode",
-                "/user/findPwd",
-                "/article",
-                "/article/{id}",
-                "/category/list",
-                "/public/**"
+                "/user/findPwd"
         );
     }
 }

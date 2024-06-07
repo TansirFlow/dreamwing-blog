@@ -10,4 +10,6 @@ public interface PublicService {
     PageBean<ArticleVO> getArticleList(Integer pageNum, Integer pageSize);
 
     List<CategoryVO> getCategoryList();
+
+    ArticleVO getArticleById(Integer id);
 }

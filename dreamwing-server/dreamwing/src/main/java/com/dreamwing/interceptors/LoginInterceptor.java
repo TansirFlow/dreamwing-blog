@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Component
@@ -26,6 +27,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 throw new RuntimeException();
             }
             Map<String,Object>claims= JwtUtil.parseToken(token);
+
             ThreadLocalUtil.set(claims);
             return true;
         }catch (Exception e) {

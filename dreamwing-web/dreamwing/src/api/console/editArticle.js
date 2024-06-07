@@ -15,7 +15,3 @@ export const uploadImageService = (file) => {
 export const addArticleService = (article) => {
     return request.post('article/add', JSON.stringify(article), { headers: { 'content-type': "application/json" } })
 }
-
-export const getCategoryListService = () =>{
-    return request.get('/category/list')
-}

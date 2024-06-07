@@ -5,11 +5,18 @@ import { User, Lock } from '@element-plus/icons-vue'
 import router from '@/router'
 import { userLoginService } from '@/api/user';
 import { useTokenStore } from '@/stores/token.js'
+
+const tokenStore=useTokenStore()
+
+
+// 登录信息
 const loginData = ref({
     username: '',
     inputPassword: '',
 })
-const tokenStore=useTokenStore()
+
+
+// 登录并存储token到pinia
 const login =async () => {
     let result=await userLoginService(loginData);
     ElMessage.success(result.msg?result.msg:'操作成功');
@@ -18,6 +25,8 @@ const login =async () => {
     router.push('/')
 }
 
+
+// 表单输入匹配规则
 const rules={
     username:[
         {required:true,message:'请输入用户名',trigger:'blur'},
@@ -28,6 +37,7 @@ const rules={
         {min:6,max:18,message:'长度为6~18位非空字符',trigger:'blur'},
     ],
 }
+
 </script>
 
 <template>
@@ -58,7 +68,7 @@ const rules={
                                         <el-form-item :style="{justifyContent: `flex-end`}">
                                             <el-row justify="center" :style="{width:`100%`}">
                                                 <el-col :span="24">
-                                                    <el-link href="" target="_blank" @click="router.push('/register')"><-没有账号？去注册</el-link>
+                                                    <el-link href="" target="_blank" @click="router.push('/register')">没有账号？去注册</el-link>
                                                 </el-col>
                                             </el-row>
                                         </el-form-item>

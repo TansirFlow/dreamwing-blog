@@ -1,35 +1,38 @@
 <script setup>
-import { getArticleByIdService } from '@/api/article';
+import { getArticleDetailService } from '@/api/public';
 import { useRoute } from 'vue-router';
 import { ref, onMounted, onActivated, nextTick, onBeforeUnmount, onUpdated, defineComponent, createApp } from 'vue'
 import { CirclePlus, Search, Link, House } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
+//获取路由对象
+const currentRoute = useRoute();
 
-/*
-# SpringBoot屎山
-```java
-public Result update(@RequestBody User user) {
-    Set<ConstraintViolation<User>> updateViolations = validator.validate(user, User.UpdateGroup.class);
-    if (!updateViolations.isEmpty()) {
-        return Result.error(GlobalConstants.INFORMATION_NOT_MATCH);
-    }
-    userService.update(user);
-    return Result.success();
-}
-```
-*/
 
-const activeIndex = ref('1')//导航栏索引
-const handleSelect = (key, keyPath) => {//导航栏选中
+//----------------------------------------------------菜单相关------------------------------------------------------
+// 顶部菜单索引
+const topMenuActiveIndex = ref('1')
+
+// 处理顶部菜单选择事件
+const handleTopMenuSelect = (key, keyPath) => {
     console.log(key, keyPath)
 }
 
-const dialogVisible = ref(false)//搜索框可视
 
-const searchInput = ref('')//搜索内容
 
-const tableData = [
+
+
+
+
+
+
+//----------------------------------------------------搜索相关------------------------------------------------------
+// 设置搜索框可见性
+const searchBoxVisible = ref(false)
+// 搜索框输入内容
+const searchInput = ref('')
+// 搜索框搜索结果
+const searchResult = [
     {
         date: '2016-05-03',
         name: 'Tom',
@@ -37,10 +40,9 @@ const tableData = [
     }
 ]
 
-const pictures = ref([
-    { id: 1, path: '../assets/1.webp' }, { id: 2, path: '../assets/2.jpg' }, { id: 3, path: '../assets/3.webp' }, { id: 4, path: '../assets/4.webp' }
-])
 
+//----------------------------------------------------媒体文件（图片）相关------------------------------------------------------
+// 根据src导入图片显示
 const exportImgSrc = (src) => {//根据地址动态获取图片
     if (src) {
         return new URL(`${src}`, import.meta.url).href;
@@ -49,27 +51,69 @@ const exportImgSrc = (src) => {//根据地址动态获取图片
     }
 }
 
+// 用户头像（示例）
+const circleUrl = ref('../assets/tstx.jpg');
 
-const article = ref({})//文章
 
-const currentRoute = useRoute();//获取路由对象
-const getArticleId = () => {//从路径参数获取文章id
+// 图标库
+import { } from '@vicons/fluent'
+import { } from '@vicons/ionicons4'
+import { LogoWechat } from '@vicons/ionicons5'
+import { } from '@vicons/antd'
+import { } from '@vicons/material'
+import { Qq, Github } from '@vicons/fa'
+import { } from '@vicons/carbon'
+import { Icon } from '@vicons/utils'
+
+
+
+// ---------------------------------------------------页面数据相关----------------------------------------------------------------
+//从路径参数获取文章id
+const getArticleId = () => {
     return currentRoute.params.id;
 }
+// 文章详细内容
+const article = ref({})
 
-const getArticleById = async () => {//请求文章
+//请求文章详细内容
+const getArticleById = async () => {
     article.value = {}
-    let result = await getArticleByIdService(getArticleId());
+    let result = await getArticleDetailService(getArticleId());
     article.value = result.data;
 }
 
-
-const editor = ref(null)// markdown-对象
-const titleList = ref([])// markdown-文章标题列表
-async function articleData() {// markdown-获取内容
-    await getArticleById()// axios获取内容
+// 调用函数获取文章详细内容
+async function getArticleData() {
+    await getArticleById()
 }
-async function getTitle() {// markdown-生成标题
+
+// ----------------------------------------------------markdown处理、大纲处理-----------------------------------------------------------------
+// markdown-对象
+const editor = ref(null)
+
+// markdown-文章标题列表
+const titleList = ref([])
+
+// 记录当前所处的位置对应的大纲里的标题index
+const heightTitle = ref(0)
+
+// 文章内容板块滚动块
+const scrollbar = ref(null)
+
+// 处理大纲板块的位置和大小变动
+const handleOutlineBlockResize = () => {
+    adaptOutlinePosition()
+}
+
+// 大纲当前滚动的位置
+const outlineScrollHeight = ref(0)
+
+// 大纲滚动板块组件
+const outlineScrollRef = ref()
+
+
+// markdown-生成大纲标题
+async function getTitle() {
     await nextTick()
     const anchors = editor.value.querySelectorAll(// 使用js选择器，获取对应的h标签，组合成列表
         'h1,h2,h3,h4,h5,h6'
@@ -87,9 +131,11 @@ async function getTitle() {// markdown-生成标题
         height: el.offsetTop, // 标签距离顶部距离
     }));
 }
-const scrollbar = ref(null)
-const heightTitle = ref(0)// markdown-当前高亮的标题index
-const rollTo = (anchor, index) => {// markdown-标题跳转
+
+
+
+// markdown-大纲点击标题跳转
+const rollTo = (anchor, index) => {
     const { lineIndex } = anchor;// 获取要跳转的标签的lineIndex
     const heading = editor.value.querySelector(// 查找lineIndex对应的元素对象
         `.v-md-editor-preview [data-v-md-line="${lineIndex}"]`
@@ -104,7 +150,33 @@ const rollTo = (anchor, index) => {// markdown-标题跳转
     heightTitle.value = index// 修改当前高亮的标题
 }
 
+// 定义大纲样式
+const outlineStyle = ref({
+    width: `100%`,
+    transform: 'translate(0,0px)',
+    'animation-duration': '0s',
+    position: 'fixed',
+    borderRadius: `var(--el-border-radius-base)`
+})
 
+//初始化大纲板块位置
+const initOutlinePosition = () => {
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    const outlintWidth = parseInt((windowWidth * 20.0 / 24) * 5.0 / 24);
+    const outlineRight = parseInt(windowWidth * 2.0 / 24)
+    outlineStyle.value.left = `${outlineRight}px`
+    outlineStyle.value.width = `${outlintWidth}px`
+    let topPosY = windowHeight * 0.4 + 50;
+    let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
+    let thisPosY = topPosY - scrollTop;
+    outlineStyle.value.top = `${thisPosY}px`
+    outlineStyle.value.bottom = '20px'
+    outlineScrollHeight.value = `${windowHeight * 0.6 - 160}px`
+}
+
+
+// 根据窗口大小和滚动位置来自适应调节大纲板块的视图位置和高度
 const adaptOutlinePosition = () => {
     const windowHeight = window.innerHeight;
     const windowWidth = window.innerWidth;
@@ -140,59 +212,8 @@ const adaptOutlinePosition = () => {
 }
 
 
-const handleResize = () => {
-    adaptOutlinePosition()
-}
 
-
-onMounted(() => {
-    window.addEventListener('resize', handleResize);
-    initOutlinePosition()
-    articleData()
-    setTimeout(() => {
-        getTitle()
-    }, 1000)
-})
-
-onActivated(() => {
-    initOutlinePosition()
-    articleData()
-    setTimeout(() => {
-        getTitle()
-    }, 1000)
-})
-
-onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-})
-
-const outline = ref()
-const rightCol = ref()
-const outlineScrollHeight = ref(0)
-const outlineScrollRef = ref()
-const outlineStyle = ref({
-    width: `100%`,
-    transform: 'translate(0,0px)',
-    'animation-duration': '0s',
-    position: 'fixed',
-    borderRadius: `var(--el-border-radius-base)`
-})
-
-const initOutlinePosition = () => {//初始化大纲板块位置
-    const windowHeight = window.innerHeight;
-    const windowWidth = window.innerWidth;
-    const outlintWidth = parseInt((windowWidth * 20.0 / 24) * 5.0 / 24);
-    const outlineRight = parseInt(windowWidth * 2.0 / 24)
-    outlineStyle.value.left = `${outlineRight}px`
-    outlineStyle.value.width = `${outlintWidth}px`
-    let topPosY = windowHeight * 0.4 + 50;
-    let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
-    let thisPosY = topPosY - scrollTop;
-    outlineStyle.value.top = `${thisPosY}px`
-    outlineStyle.value.bottom = '20px'
-    outlineScrollHeight.value = `${windowHeight * 0.6 - 160}px`
-}
-
+// 处理整个页面滚动事件
 const handleScroll = () => {
     let scrollTop = scrollbar.value.$refs.wrapRef.scrollTop;
     const absList = [] // 各个h标签与当前距离绝对值
@@ -204,26 +225,39 @@ const handleScroll = () => {
     adaptOutlinePosition()
 }
 
-const circleUrl = ref('../assets/tstx.jpg');
 
-import { BrandGithub, } from '@vicons/tabler'
-import { } from '@vicons/fluent'
-import { } from '@vicons/ionicons4'
-import { LogoTwitter, LogoWechat } from '@vicons/ionicons5'
-import { } from '@vicons/antd'
-import { } from '@vicons/material'
-import { Qq, Github } from '@vicons/fa'
-import { } from '@vicons/carbon'
-import { Icon } from '@vicons/utils'
 
+
+
+// -----------------------------------------------------钩子函数--------------------------------------------------------------
+onMounted(() => {
+    window.addEventListener('resize', handleOutlineBlockResize);
+    initOutlinePosition()
+    getArticleData()
+    setTimeout(() => {
+        getTitle()
+    }, 1000)
+})
+
+onActivated(() => {
+    initOutlinePosition()
+    getArticleData()
+    setTimeout(() => {
+        getTitle()
+    }, 1000)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleOutlineBlockResize);
+})
 
 
 </script>
 
 <template>
     <div style="position: fixed;z-index:999;border:0px solid red;width:100%;height:100px">
-        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" :ellipsis="false"
-            @select="handleSelect" style="height: 70px;position:flxed" background-color="rgba(255,255,255,0.5)"
+        <el-menu :default-active="topMenuActiveIndex" class="el-menu-demo" mode="horizontal" :ellipsis="false"
+            @select="handleTopMenuSelect" style="height: 70px;position:flxed" background-color="rgba(255,255,255,0.5)"
             :style="{ backdropFilter: `blur(10px)` }">
             <el-menu-item index="0">
                 <img style="width: 100px" src="../assets/element-plus-logo.svg" alt="Element logo" />
@@ -248,7 +282,7 @@ import { Icon } from '@vicons/utils'
                 <el-menu-item index="1-3">退出登录</el-menu-item>
             </el-sub-menu>
             <el-menu-item index="2">
-                <el-button size="large" :icon="Search" circle @click="dialogVisible = true" />
+                <el-button size="large" :icon="Search" circle @click="searchBoxVisible = true" />
             </el-menu-item>
             <el-menu-item index="3">
                 <el-button size="large" :icon="CirclePlus" type="primary" round>发布文章</el-button>
@@ -262,14 +296,14 @@ import { Icon } from '@vicons/utils'
                 :src="exportImgSrc('../assets/default_background.webp')" />
             <el-text class="mx-1"
                 :style="{ textAlign: `center`, color: `white`, fontSize: `36px`, position: `absolute`, top: `100px`, bottom: `20px`, left: `0`, right: `0`, border: `0px solid red` }">{{
-            article.articleTitle }}</el-text>
+                    article.articleTitle }}</el-text>
         </el-row>
 
         <el-row :style="{ border: `0px solid red`, top: `50px` }" justify="center">
             <el-col :style="{ border: `0px solid red` }" :span="20">
                 <el-row :style="{ border: `0px solid red` }" :gutter="0" justify="space-between">
-                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--左侧栏，文章大纲-->
-                        <el-card ref="outline" :style="outlineStyle">
+                    <el-col :style="{ border: `0px solid red` }" :span="5"><!--左侧栏，文章大纲-->
+                        <el-card :style="outlineStyle">
                             <el-text class="mx-1" size="large" type="primary"
                                 :style="{ fontSize: `24px` }">文章大纲</el-text><br><br>
                             <el-scrollbar :height="outlineScrollHeight" ref="outlineScrollRef">
@@ -281,7 +315,7 @@ import { Icon } from '@vicons/utils'
                                             :class="index === heightTitle ? 'title-active' : 'title-not-active'">
                                             <!-- <a style="cursor: pointer">{{ anchor.title.length>10?anchor.title.slice(0,10):anchor.title }}</a> -->
                                             <el-text class="mx-1" style="cursor: pointer" truncated>{{ anchor.title
-                                                }}</el-text>
+                                            }}</el-text>
                                         </div>
                                     </div>
                                 </el-row>
@@ -298,8 +332,8 @@ import { Icon } from '@vicons/utils'
                         </el-card>
                     </el-col>
                     <!-- <el-row :span="1"></el-row> -->
-                    <el-col :style="{ border: `0px solid red` }" :span="5" ref="rightCol"><!--右侧栏，作者信息-->
-                        <el-card ref="outline" :style="{ borderRadius: `0 0 0 0` }"><!--var(--el-border-radius-round)-->
+                    <el-col :style="{ border: `0px solid red` }" :span="5"><!--右侧栏，作者信息-->
+                        <el-card :style="{ borderRadius: `0 0 0 0` }"><!--var(--el-border-radius-round)-->
                             <el-row justify="center">
                                 <el-col :span="24">
                                     <div class="demo-basic--circle">
@@ -360,7 +394,7 @@ import { Icon } from '@vicons/utils'
     </el-scrollbar>
 
 
-    <el-dialog v-model="dialogVisible" title="搜索" width="500">
+    <el-dialog v-model="searchBoxVisible" title="搜索" width="500">
         <el-row :gutter="10" justify="space-between">
             <el-col :span="20">
                 <el-input v-model="searchInput" style="width: 100%" placeholder="输入搜索内容" />
@@ -371,7 +405,7 @@ import { Icon } from '@vicons/utils'
         </el-row>
         <el-row>
             <el-col>
-                <el-table :data="tableData" style="width: 100%">
+                <el-table :data="searchResult" style="width: 100%">
                     <el-table-column prop="date" label="序号" width="120px" />
                     <el-table-column prop="name" label="标题" width="100px" />
                     <el-table-column prop="address" label="匹配" />

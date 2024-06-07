@@ -13,6 +13,16 @@ import {
 } from '@element-plus/icons-vue'
 import { ref, onMounted, watch, onActivated } from 'vue'
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
+const route = useRoute();
+const router = useRouter()
+const tokenStore=useTokenStore()
+
+
+// 搜索功能input
+const input=ref() 
+
+
+// ---------------------------------------------------导入媒体--------------------------------------------------
 import { } from '@vicons/tabler'
 import { } from '@vicons/fluent'
 import { } from '@vicons/ionicons4'
@@ -25,89 +35,119 @@ import { Icon } from '@vicons/utils'
 import {getUserDetailService} from '@/api/console'
 import { useTokenStore } from '@/stores/token.js'
 
-const handleOpen = (key, keyPath) => {
+
+// --------------------------------------------------板块与路由------------------------------------------------
+// 处理左侧菜单打开事件
+const handleLeftMenuOpen = (key, keyPath) => {
     console.log(key, keyPath)
 }
-const handleClose = (key, keyPath) => {
+// 处理左侧菜单关闭事件
+const handleLeftMenuClose = (key, keyPath) => {
     console.log(key, keyPath)
 }
+// 处理左侧菜单选中事件
+const handleLeftMenuSelect = (index) => {
+    getBlockNameByPath(index)
+}
 
-const input=ref() //搜索input
+// 当前板块名称，显示在右边顶部
+const blockName = ref('');
 
-const blockName = ref('');//板块名称，显示在右边顶部
+// 板块数据列表
+const blockList=ref([
+    {
+        index:"0",
+        path:"/console/panel",
+        name:"仪表盘"
+    },
+    {
+        index:"1",
+        path:"/console/article",
+        name:"文章管理"
+    },
+    {
+        index:"2",
+        path:"/console/talk",
+        name:"说说管理"
+    },
+    {
+        index:"3",
+        path:"/console/comment",
+        name:"评论管理"
+    },
+    {
+        index:"4",
+        path:"/console/attachment",
+        name:"附件管理"
+    },
+    {
+        index:"5",
+        path:"/console/user",
+        name:"用户管理"
+    },
+    {
+        index:"6",
+        path:"/console/setting",
+        name:"系统设置"
+    },
+    {
+        index:"7",
+        path:"/console/all",
+        name:"系统概览"
+    },
+    {
+        index:"8",
+        path:"/console/editArticle",
+        name:"编辑文章"
+    },
+    
+])
 
-const handleBlockName = (index) => {
-    let name_t = ""
-    switch (index) {
-        case "/console/panel":
-            name_t = "仪表盘";
-            break;
-        case "/console/article":
-            name_t = "文章管理";
-            break;
-        case "/console/talk":
-            name_t = "说说管理";
-            break;
-        case "/console/comment":
-            name_t = "评论管理";
-            break;
-        case "/console/attachment":
-            name_t = "附件管理";
-            break;
-        case "/console/user":
-            name_t = "用户管理";
-            break;
-        case "/console/setting":
-            name_t = "系统设置";
-            break;
-        case "/console/all":
-            name_t = "系统概览";
-            break;
-        case "/console/editArticle":
-            name_t = "编辑文章"
+
+// 通过索引信息获得板块名称
+const getBlockNameByPath = (path) => {
+    for(let i=0;i<blockList.value.length;++i){
+        if(path===blockList.value[i].path){
+            blockName.value=blockList.value[i].name
+            break
+        }
     }
-    blockName.value = name_t;
-}
-
-const route = useRoute();
-const router = useRouter()
-const handleSelect = (index) => {
-    handleBlockName(index)
 }
 
 
 
+// ------------------------------------------------------------钩子函数-----------------------------------------------------------
+onMounted(() => {
+    getBlockNameByPath(route.path)
+    getUserDetail()
+});
 
+onActivated(()=>{
+    getUserDetail()
+})
+
+// watch(
+//     () => router.currentRoute.value,
+//     (newValue) => {
+//         getBlockNameByPath(newValue.path)
+//     },
+//     { immediate: true }
+// )
+
+
+// ------------------------------------------------------账户相关----------------------------------------------
+// 当前登录用户的详细信息
 const userDetailInfo=ref({})
 
+// 获取当前登录用户详细信息
 const getUserDetail=async ()=>{
     let result=await getUserDetailService()
     console.log("result",result)
     userDetailInfo.value=result.data
     console.log("userDetailInfo",userDetailInfo)
 }
+getUserDetail()
 
-async function userDetail() {// markdown-获取内容
-    await getUserDetail()// axios获取内容
-}
-
-
-onMounted(() => {
-    handleBlockName(route.path)
-    userDetail()
-});
-onActivated(()=>{
-    userDetail()
-})
-watch(
-    () => router.currentRoute.value,
-    (newValue) => {
-        handleBlockName(newValue.path)
-    },
-    { immediate: true }
-)
-
-const tokenStore=useTokenStore()
 const logout=()=>{
     tokenStore.removeToken()
     router.push('/login')
@@ -121,8 +161,8 @@ const logout=()=>{
     <div class="common-layout">
         <el-container>
             <el-aside width="250px" :style="{ background: `white`, height: `100vh`, border: `0px solid red` }">
-                <el-menu :style="{ height: `80vh` }" default-active="1" class="el-menu-vertical-demo" @open="handleOpen"
-                    @select="handleSelect" @close="handleClose" router>
+                <el-menu :style="{ height: `80vh` }" default-active="1" class="el-menu-vertical-demo" @open="handleLeftMenuOpen"
+                    @select="handleLeftMenuSelect" @close="handleLeftMenuClose" router>
                     <br>
                     <el-text class="mx-1" type="primary"
                         :style="{ fontSize: `36px`, display: 'flex', alignItem: `center`, justifyContent: 'center', height: `50px` }">DW

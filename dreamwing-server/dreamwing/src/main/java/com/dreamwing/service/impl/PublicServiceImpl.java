@@ -1,5 +1,6 @@
 package com.dreamwing.service.impl;
 
+import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.PublicMapper;
 import com.dreamwing.pojo.ArticleVO;
 import com.dreamwing.pojo.CategoryVO;
@@ -34,6 +35,14 @@ public class PublicServiceImpl implements PublicService {
     public List<CategoryVO> getCategoryList() {
         List<CategoryVO> categoryVOList=publicMapper.getCategoryList();
         return categoryVOList;
+    }
+
+    @Override
+    public ArticleVO getArticleById(Integer id) {
+        ArticleVO articleVO = publicMapper.getArticleById(id);
+        if (articleVO == null) throw new DreamWingRuntimeException("文章不存在");
+        articleVO.setPassword(null);
+        return articleVO;
     }
 
     public List<TagVO> getTagListByArticleId(Integer articleId) {

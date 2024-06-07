@@ -1,14 +1,24 @@
 import requestPublic from '@/utils/requestPublic.js'
-
-export const getCategoryListService = () =>{
+import request from '@/utils/request.js'
+export const getCategoryListService = () => {
     return requestPublic.get('/public/category')
-}
+}//1
 export const getArticleListService = () => {
-    return requestPublic.get(`/article?pageNum=1&pageSize=10`);
+    return requestPublic.get(`/public/article`
+        , {
+            params: {
+                pageNum: '1',
+                pageSize: '10'
+            }
+        }
+    );
 }
-export const getArticleStatusListService = () =>{
+export const getArticleDetailService=(id)=>{
+    return requestPublic.get(`/public/article/${id}`);
+}
+export const getArticleStatusListService = () => {
     return requestPublic.get(`/public/article/status`);
 }
-export const getArticleTypeListService = () =>{
+export const getArticleTypeListService = () => {
     return requestPublic.get(`/public/article/type`);
 }
