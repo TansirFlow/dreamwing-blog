@@ -22,6 +22,8 @@
         #{articleDTO.isDelete}, #{articleDTO.status}, #{articleDTO.type}, #{articleDTO.lookNum}, #{articleDTO.password},
         #{articleDTO.originUrl}, #{articleDTO.createTime}, NOW())
     </insert>
+
+
     <delete id="deleteByArticleIdAndTagList">
         DELETE FROM article_tag
         WHERE article_id=#{articleId} AND tag_id IN
@@ -29,7 +31,41 @@
             #{item}
         </foreach>
     </delete>
+
+
     <select id="getListByCondition"  resultType="com.dreamwing.pojo.ArticleVO">
+        select article.id as id,
+        user_id,
+        username as author,
+        category_id,
+        category_name,
+        article_cover,
+        article_title,
+        article_abstract,
+        article_content,
+        status,
+        type,
+        look_num,
+        article.password as password,
+        origin_url,
+        article.create_time as create_time,
+        article.update_time as update_time
+        from article
+        join user
+        join category on user_id = user.id and category_id = category.id
+        where is_delete = 0 AND user_id=#{userId}
+        <if test="articleGetListDataDTO.categoryId!=null">
+            and category_id=#{articleGetListDataDTO.categoryId}
+        </if>
+        <if test="articleGetListDataDTO.statusId!=null">
+            and status=#{articleGetListDataDTO.statusId}
+        </if>
+        <if test="articleGetListDataDTO.typeId!=null">
+            and type=#{articleGetListDataDTO.typeId}
+        </if>
+    </select>
+
+    <select id="getListByConditionForAdmin"  resultType="com.dreamwing.pojo.ArticleVO">
         select article.id as id,
         user_id,
         username as author,
@@ -60,7 +96,17 @@
             and type=#{typeId}
         </if>
     </select>
+
     <delete id="deleteArticleByIdList">
+        UPDATE article
+        SET is_delete = 1
+        WHERE user_id=#{thisUserId} AND id IN
+        <foreach item="item" index="index" collection="idList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="deleteArticleByIdListForAdmin">
         UPDATE article
         SET is_delete = 1
         WHERE id IN
@@ -68,4 +114,5 @@
             #{item}
         </foreach>
     </delete>
+
 </mapper>

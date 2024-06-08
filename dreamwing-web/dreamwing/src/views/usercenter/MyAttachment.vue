@@ -236,6 +236,7 @@ const uploadFile = async (UploadRequestOptions) => {
 const handleUploadChange = (uploadFile, uploadFiles) => {
     fileList.value = fileList.value.slice(-3)
 }
+
 </script>
 <template>
     <div :style="{ background: `white`, padding: `10px` }">

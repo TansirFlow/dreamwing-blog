@@ -4,6 +4,7 @@ import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.AttachmentMapper;
 import com.dreamwing.pojo.*;
 import com.dreamwing.service.AttachmentService;
+import com.dreamwing.service.RoleService;
 import com.dreamwing.utils.ThreadLocalUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,6 +29,28 @@ public class AttachmentServiceImpl implements AttachmentService {
     private MinioPojo minioPojo;
     @Autowired
     private AttachmentMapper attachmentMapper;
+    @Autowired
+    private RoleService roleService;
+
+    /**
+     * 看看是否有权限管理文章
+     * @param authority
+     */
+    public void lookAuthority(String authority){
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer userId = (Integer) claims.get("id");
+        RoleVO roleVO=roleService.getRoleByUserId(userId);
+        List<AuthorityVO> authorityVOList=roleService.getAuthorityByRoleId(roleVO.getId());
+        boolean flag=false;
+        for(int i=0;i<authorityVOList.size();++i) {
+            if(Objects.equals(authorityVOList.get(i).getName(), authority)) {
+                flag=true;
+            }
+        }
+        if(!flag){
+            throw new DreamWingRuntimeException("您无权访问该接口！");
+        }
+    }
 
     public String upload(String bucketName, MultipartFile file) {
 //        System.out.println(file);
@@ -102,7 +126,19 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public Attachment getById(Integer id) {
-        Attachment attachment=attachmentMapper.getById(id);
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer thisUserId = (Integer) claims.get("id");
+        Attachment attachment=attachmentMapper.getById(id,thisUserId);
+        if(attachment==null){
+            throw new DreamWingRuntimeException("附件id不存在,请勿非法请求");
+        }
+        return attachment;
+    }
+
+    @Override
+    public Attachment getByIdForAdmin(Integer id) {
+        lookAuthority("附件管理");
+        Attachment attachment=attachmentMapper.getByIdForAdmin(id);
         if(attachment==null){
             throw new DreamWingRuntimeException("附件id不存在,请勿非法请求");
         }
@@ -111,7 +147,15 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public void delete(Integer id) {
-        attachmentMapper.delete(id);
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer thisUserId = (Integer) claims.get("id");
+        attachmentMapper.delete(id,thisUserId);
+    }
+
+    @Override
+    public void deleteForAdmin(Integer id) {
+        lookAuthority("附件管理");
+        attachmentMapper.deleteForAdmin(id);
     }
 
 
@@ -122,6 +166,17 @@ public class AttachmentServiceImpl implements AttachmentService {
         PageBean<Attachment> pb = new PageBean<>();
         PageHelper.startPage(attachmentGetListDataDTO.getPageNum(), attachmentGetListDataDTO.getPageSize());
         Page<Attachment> p = (Page<Attachment>) attachmentMapper.getListByCondition(attachmentGetListDataDTO,user_id);
+        pb.setTotal(p.getTotal());
+        pb.setItems(p.getResult());
+        return pb;
+    }
+
+    @Override
+    public PageBean<Attachment> getListByConditionForAdmin(AttachmentGetListDataDTO attachmentGetListDataDTO) {
+        lookAuthority("附件管理");
+        PageBean<Attachment> pb = new PageBean<>();
+        PageHelper.startPage(attachmentGetListDataDTO.getPageNum(), attachmentGetListDataDTO.getPageSize());
+        Page<Attachment> p = (Page<Attachment>) attachmentMapper.getListByConditionForAdmin(attachmentGetListDataDTO);
         pb.setTotal(p.getTotal());
         pb.setItems(p.getResult());
         return pb;

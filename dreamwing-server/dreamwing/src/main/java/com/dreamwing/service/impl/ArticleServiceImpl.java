@@ -5,6 +5,7 @@ import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.ArticleMapper;
 import com.dreamwing.pojo.*;
 import com.dreamwing.service.ArticleService;
+import com.dreamwing.service.RoleService;
 import com.dreamwing.service.TagService;
 import com.dreamwing.utils.ThreadLocalUtil;
 import com.github.pagehelper.Page;
@@ -22,6 +23,28 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper articleMapper;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private RoleService roleService;
+
+    /**
+     * 看看是否有权限管理文章
+     * @param authority
+     */
+    public void lookAuthority(String authority){
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer userId = (Integer) claims.get("id");
+        RoleVO roleVO=roleService.getRoleByUserId(userId);
+        List<AuthorityVO> authorityVOList=roleService.getAuthorityByRoleId(roleVO.getId());
+        boolean flag=false;
+        for(int i=0;i<authorityVOList.size();++i) {
+            if(Objects.equals(authorityVOList.get(i).getName(), authority)) {
+                flag=true;
+            }
+        }
+        if(!flag){
+            throw new DreamWingRuntimeException("您无权访问该接口！");
+        }
+    }
 
     /**
      * 增加文章
@@ -139,10 +162,27 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void updateArticle(ArticleDTO articleDTO) {
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer userId = (Integer) claims.get("id");
         if (articleDTO.getCategoryId() == null) articleDTO.setCategoryId(ArticleConstants.DEFAULT_ARTICLE_CATEGORY_ID);
         articleDTO.setIsDelete(ArticleConstants.ARTICLE_NOT_DELETE);
         articleDTO.setUpdateTime(LocalDateTime.now());
-        articleMapper.updateArticle(articleDTO);
+        articleMapper.updateArticle(articleDTO,userId);
+        List<TagVO> tagList = articleDTO.getTagList();
+        String[] tagNameList = new String[tagList.size()];
+        for (int i = 0; i < tagList.size(); ++i) {
+            tagNameList[i] = tagList.get(i).getName();
+        }
+        setTagList(articleDTO.getId(), tagNameList);
+    }
+
+    @Override
+    public void updateArticleForAdmin(ArticleDTO articleDTO) {
+        lookAuthority("管理文章");
+        if (articleDTO.getCategoryId() == null) articleDTO.setCategoryId(ArticleConstants.DEFAULT_ARTICLE_CATEGORY_ID);
+        articleDTO.setIsDelete(ArticleConstants.ARTICLE_NOT_DELETE);
+        articleDTO.setUpdateTime(LocalDateTime.now());
+        articleMapper.updateArticleForAdmin(articleDTO);
         List<TagVO> tagList = articleDTO.getTagList();
         String[] tagNameList = new String[tagList.size()];
         for (int i = 0; i < tagList.size(); ++i) {
@@ -153,14 +193,24 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void deleteArticleById(Integer id) {
-        articleMapper.deleteArticleById(id);
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer thisUserId = (Integer) claims.get("id");
+        articleMapper.deleteArticleById(id,thisUserId);
+    }
+
+    @Override
+    public void deleteArticleByIdForAdmin(Integer id) {
+        lookAuthority("管理文章");
+        articleMapper.deleteArticleByIdForAdmin(id);
     }
 
     @Override
     public PageBean<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO) {
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer userId = (Integer) claims.get("id");
         PageBean<ArticleVO> pb = new PageBean<>();
         PageHelper.startPage(articleGetListDataDTO.getPageNum(), articleGetListDataDTO.getPageSize());
-        Page<ArticleVO> p = (Page<ArticleVO>) articleMapper.getListByCondition(articleGetListDataDTO);
+        Page<ArticleVO> p = (Page<ArticleVO>) articleMapper.getListByCondition(articleGetListDataDTO,userId);
         pb.setTotal(p.getTotal());
         pb.setItems(p.getResult());
         for (int i = 0; i < pb.getItems().size(); ++i) {
@@ -171,8 +221,29 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void deleteArticleByIdList(List<Integer> idList) {
-        System.out.println(idList);
-        articleMapper.deleteArticleByIdList(idList);
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer userId = (Integer) claims.get("id");
+        articleMapper.deleteArticleByIdList(idList,userId);
+    }
+
+    @Override
+    public void deleteArticleByIdListForAdmin(List<Integer> idList) {
+        lookAuthority("管理文章");
+        articleMapper.deleteArticleByIdListForAdmin(idList);
+    }
+
+    @Override
+    public PageBean<ArticleVO> getListByConditionForAdmin(ArticleGetListDataDTO articleGetListDataDTO) {
+        lookAuthority("管理文章");
+        PageBean<ArticleVO> pb = new PageBean<>();
+        PageHelper.startPage(articleGetListDataDTO.getPageNum(), articleGetListDataDTO.getPageSize());
+        Page<ArticleVO> p = (Page<ArticleVO>) articleMapper.getListByConditionForAdmin(articleGetListDataDTO);
+        pb.setTotal(p.getTotal());
+        pb.setItems(p.getResult());
+        for (int i = 0; i < pb.getItems().size(); ++i) {
+            pb.getItems().get(i).setTagList(getTagListByArticleId(pb.getItems().get(i).getId()));
+        }
+        return pb;
     }
 
     /**

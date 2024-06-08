@@ -35,4 +35,8 @@ public interface RoleMapper {
 
     @Select("select * from authority")
     List<AuthorityVO> getAuthorityList();
+
+    @Select("select role.id as id,name,is_disable,role.create_time,role.update_time " +
+            "from user join role on user.role = role.id where user.id=#{userId}")
+    RoleVO getRoleById(Integer userId);
 }

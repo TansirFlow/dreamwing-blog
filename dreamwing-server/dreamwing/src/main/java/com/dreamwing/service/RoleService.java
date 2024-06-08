@@ -21,4 +21,6 @@ public interface RoleService {
     List<RoleVO> getRoleList();
 
     List<AuthorityVO> getAuthorityList();
+
+    RoleVO getRoleByUserId(Integer userId);
 }

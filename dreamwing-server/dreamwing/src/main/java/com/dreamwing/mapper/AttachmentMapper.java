@@ -13,14 +13,23 @@ public interface AttachmentMapper {
     void add(String type, String url, Integer user_id,String originalFilename);
 
     @Select("select attachment.id as id,type,url,attachment.create_time as create_time,create_user,username,origin_name " +
-            "from attachment join user on create_user=user.id where user.id=#{id}")
-    Attachment getById(Integer id);
+            "from attachment join user on create_user=user.id where user.id=#{id} and create_user=#{thisUserId}")
+    Attachment getById(Integer id, Integer thisUserId);
+
+    @Delete("delete from attachment where id=#{id} and create_user=#{thisUserId}")
+    void delete(Integer id,Integer thisUserId);
 
     @Delete("delete from attachment where id=#{id}")
-    void delete(Integer id);
+    void deleteForAdmin(Integer id);
 
     Page<Attachment> getListByCondition(@Param("attachmentGetListDataDTO") AttachmentGetListDataDTO attachmentGetListDataDTO, Integer user_id);
 
     @Select("select DISTINCT type FROM attachment;")
     List<String> getAttachmentTypeList();
+
+    Page<Attachment> getListByConditionForAdmin(@Param("attachmentGetListDataDTO") AttachmentGetListDataDTO attachmentGetListDataDTO);
+
+    @Select("select attachment.id as id,type,url,attachment.create_time as create_time,create_user,username,origin_name " +
+            "from attachment join user on create_user=user.id where user.id=#{id}")
+    Attachment getByIdForAdmin(Integer id);
 }

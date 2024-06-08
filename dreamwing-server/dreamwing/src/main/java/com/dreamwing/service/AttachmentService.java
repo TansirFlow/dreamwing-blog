@@ -17,4 +17,10 @@ public interface AttachmentService {
     PageBean<Attachment> getListByCondition(AttachmentGetListDataDTO attachmentGetListDataDTO);
 
     List<String> getAttachmentTypeList();
+
+    void deleteForAdmin(Integer id);
+
+    PageBean<Attachment> getListByConditionForAdmin(AttachmentGetListDataDTO attachmentGetListDataDTO);
+
+    Attachment getByIdForAdmin(Integer id);
 }

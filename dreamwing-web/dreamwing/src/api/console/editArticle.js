@@ -21,5 +21,5 @@ export const addArticleService = (article) => {
 }
 
 export const updateArticleService = (article) => {
-    return request.post('article/update', JSON.stringify(article), { headers: { 'content-type': "application/json" } })
+    return request.post('article/update/admin', JSON.stringify(article), { headers: { 'content-type': "application/json" } })
 }

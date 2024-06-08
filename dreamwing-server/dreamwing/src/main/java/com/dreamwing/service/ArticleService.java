@@ -25,4 +25,12 @@ public interface ArticleService {
     PageBean<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO);
 
     void deleteArticleByIdList(List<Integer> idList);
+
+    PageBean<ArticleVO> getListByConditionForAdmin(ArticleGetListDataDTO articleGetListDataDTO);
+
+    void updateArticleForAdmin(ArticleDTO articleDTO);
+
+    void deleteArticleByIdForAdmin(Integer id);
+
+    void deleteArticleByIdListForAdmin(List<Integer> idList);
 }

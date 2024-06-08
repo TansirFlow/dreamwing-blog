@@ -1,13 +1,18 @@
 package com.dreamwing.controller;
 
+import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.pojo.*;
 import com.dreamwing.service.AttachmentService;
+import com.dreamwing.service.RoleService;
+import com.dreamwing.utils.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/attachment")
@@ -17,6 +22,8 @@ public class AttachmentController {
     private AttachmentService attachmentService;
     @Autowired
     private MinioPojo minioPojo;
+
+
 
     @PostMapping("/upload")
     public Result<String> upload(MultipartFile file) {
@@ -31,15 +38,33 @@ public class AttachmentController {
         return Result.success(attachment);
     }
 
+    @GetMapping("/admin/{id}")
+    public Result<Attachment> getByIdForAdmin(@PathVariable Integer id){
+        Attachment attachment=attachmentService.getByIdForAdmin(id);
+        return Result.success(attachment);
+    }
+
     @PostMapping("/list")
     public Result<PageBean<Attachment>> list(@RequestBody AttachmentGetListDataDTO attachmentGetListDataDTO){
         PageBean<Attachment> attachmentList = attachmentService.getListByCondition(attachmentGetListDataDTO);
         return Result.success(attachmentList);
     }
 
+    @PostMapping("/list/admin")
+    public Result<PageBean<Attachment>> listForAdmin(@RequestBody AttachmentGetListDataDTO attachmentGetListDataDTO){
+        PageBean<Attachment> attachmentList = attachmentService.getListByConditionForAdmin(attachmentGetListDataDTO);
+        return Result.success(attachmentList);
+    }
+
     @PostMapping("/delete/{id}")
     public Result delete(@PathVariable Integer id){
         attachmentService.delete(id);
+        return Result.success();
+    }
+
+    @PostMapping("/delete/admin/{id}")
+    public Result deleteForAdmin(@PathVariable Integer id){
+        attachmentService.deleteForAdmin(id);
         return Result.success();
     }
 

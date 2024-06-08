@@ -60,6 +60,12 @@ public class ArticleController {
         return Result.success(list);
     }
 
+    @PostMapping("/list/admin")
+    public Result<PageBean<ArticleVO>> getListByConditionForAdmin(@RequestBody ArticleGetListDataDTO articleGetListDataDTO) {
+        PageBean<ArticleVO> list = articleService.getListByConditionForAdmin(articleGetListDataDTO);
+        return Result.success(list);
+    }
+
     @PostMapping("/setTagList/{articleId}")
     public Result setTagList(@PathVariable Integer articleId, @RequestBody String[] tagList) {
         articleService.setTagList(articleId,tagList);
@@ -72,13 +78,11 @@ public class ArticleController {
         return Result.success();
     }
 
-
-    // 未启用分页查询的垃圾
-    //    @GetMapping("/getList")
-    //    public Result<List<ArticleVO>> getList(){
-    //        List<ArticleVO> list=articleService.getList();
-    //        return Result.success(list);
-    //    }
+    @PostMapping("/update/admin")
+    public Result updateArticleForAdmin(@RequestBody ArticleDTO articleDTO) {
+        articleService.updateArticleForAdmin(articleDTO);
+        return Result.success();
+    }
 
 
     @PostMapping("/delete/{id}")
@@ -87,9 +91,21 @@ public class ArticleController {
         return Result.success();
     }
 
+    @PostMapping("/delete/admin/{id}")
+    public Result deleteArticleByIdForAdmin(@PathVariable Integer id){
+        articleService.deleteArticleByIdForAdmin(id);
+        return Result.success();
+    }
+
     @PostMapping("/delete/list")
     public Result deleteArticleByIdList(@RequestBody List<Integer> idList) {
         articleService.deleteArticleByIdList(idList);
+        return Result.success();
+    }
+
+    @PostMapping("/delete/list/admin")
+    public Result deleteArticleByIdListForAdmin(@RequestBody List<Integer> idList) {
+        articleService.deleteArticleByIdListForAdmin(idList);
         return Result.success();
     }
 }

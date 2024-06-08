@@ -39,6 +39,20 @@ public interface ArticleMapper {
 
     void addTagListToArticle(Integer articleId, List<TagVO> tagList);
 
+    @Update("update article set category_id=#{articleDTO.categoryId}," +
+            "article_cover=#{articleDTO.articleCover}," +
+            "article_title=#{articleDTO.articleTitle}," +
+            "article_abstract=#{articleDTO.articleAbstract}," +
+            "article_content=#{articleDTO.articleContent}," +
+            "is_delete=#{articleDTO.isDelete}," +
+            "status=#{articleDTO.status}," +
+            "type=#{articleDTO.type}," +
+            "password=#{articleDTO.password}," +
+            "origin_url=#{articleDTO.originUrl}," +
+            "update_time=#{articleDTO.updateTime} " +
+            "where id=#{articleDTO.id} and user_id=#{thisUserId}")
+    void updateArticle(ArticleDTO articleDTO, Integer thisUserId);
+
     @Update("update article set category_id=#{categoryId}," +
             "article_cover=#{articleCover}," +
             "article_title=#{articleTitle}," +
@@ -51,13 +65,20 @@ public interface ArticleMapper {
             "origin_url=#{originUrl}," +
             "update_time=#{updateTime} " +
             "where id=#{id}")
-    void updateArticle(ArticleDTO articleDTO);
+    void updateArticleForAdmin(ArticleDTO articleDTO);
 
+
+    @Delete("update article set is_delete=1 where id=#{id} and user_id=#{thisUserId}")
+    void deleteArticleById(Integer id, Integer thisUserId);
+
+    Page<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO, Integer userId);
+
+    void deleteArticleByIdList(List<Integer> idList, Integer thisUserId);
+
+    Page<ArticleVO> getListByConditionForAdmin(ArticleGetListDataDTO articleGetListDataDTO);
 
     @Delete("update article set is_delete=1 where id=#{id}")
-    void deleteArticleById(Integer id);
+    void deleteArticleByIdForAdmin(Integer id);
 
-    Page<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO);
-
-    void deleteArticleByIdList(List<Integer> idList);
+    void deleteArticleByIdListForAdmin(List<Integer> idList);
 }

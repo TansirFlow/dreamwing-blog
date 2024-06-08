@@ -60,5 +60,10 @@ public class RoleServiceImpl implements RoleService {
         List<AuthorityVO> authorityVOList=roleMapper.getAuthorityList();
         return authorityVOList;
     }
+
+    public RoleVO getRoleByUserId(Integer userId) {
+        RoleVO roleVO=roleMapper.getRoleById(userId);
+        return roleVO;
+    }
 }
 
