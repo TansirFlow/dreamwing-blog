@@ -16,7 +16,7 @@ import mermaid from '@bytemd/plugin-mermaid'
 import 'juejin-markdown-themes/dist/juejin.min.css'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import 'highlight.js/styles/vs.css'
-import { getArticleDetailService, addArticleService, updateArticleService, uploadImageService } from '@/api/console/editArticle'
+import { getArticleDetailService, addArticleService, updateArticleService, uploadImageService } from '@/api/usercenter/editArticle'
 import { getCategoryListService, getArticleStatusListService, getArticleTypeListService } from '@/api/public'
 
 import { Plus } from '@element-plus/icons-vue'

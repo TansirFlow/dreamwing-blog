@@ -12,4 +12,7 @@ public class Attachment {
     private String url;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
+    private Integer createUser;
+    private String userName;
+    private String fileName;
 }

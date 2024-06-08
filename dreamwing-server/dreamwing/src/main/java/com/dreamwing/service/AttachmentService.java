@@ -1,6 +1,8 @@
 package com.dreamwing.service;
 
 import com.dreamwing.pojo.Attachment;
+import com.dreamwing.pojo.AttachmentGetListDataDTO;
+import com.dreamwing.pojo.PageBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -12,5 +14,7 @@ public interface AttachmentService {
 
     void delete(Integer id);
 
-    List<Attachment> list();
+    PageBean<Attachment> getListByCondition(AttachmentGetListDataDTO attachmentGetListDataDTO);
+
+    List<String> getAttachmentTypeList();
 }

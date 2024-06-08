@@ -18,7 +18,8 @@ import ConsoleEditArticleVue from '@/views/console/EditArticle.vue'
 
 import MyInfoVue from '@/views/usercenter/MyInfo.vue'
 import MyArticleVue from '@/views/usercenter/MyArticle.vue'
-
+import UserEditArticleVue from '@/views/usercenter/EditArticle.vue'
+import MyAttachmentVue from '@/views/usercenter/MyAttachment.vue'
 
 
 const routes = [
@@ -47,13 +48,17 @@ const routes = [
             { path: '/console/user', name: '用户管理', component: UserManageVue },
             { path: '/console/setting', name: '系统设置', component: SystemSettingVue },
             { path: '/console/all', name: '系统概览', component: SystemAllVue },
-            { path: '/console/editArticle', name: '编辑文章', component: ConsoleEditArticleVue }
+            { path: '/console/editarticle/:id', name: '编辑文章2', component: ConsoleEditArticleVue },
+            { path: '/console/editarticle', name: '新增文章2', component: ConsoleEditArticleVue }
         ]
     },
     {
         path: '/uc', name: 'usercenter', component: UserCenterVue, meta: { keepAlive: true }, children: [
             { path: '/uc/info', name: '个人中心', component: MyInfoVue },
-            {path:'/uc/article',name:'我的文章',component:MyArticleVue}
+            { path: '/uc/article', name: '我的文章', component: MyArticleVue },
+            { path: '/uc/editarticle/:id', name: '编辑文章', component: UserEditArticleVue },
+            { path: '/uc/editarticle', name: '添加文章', component: UserEditArticleVue },
+            { path:'/uc/attachment',name:'我的附件',component:MyAttachmentVue }
         ]
     }
 ]
@@ -66,23 +71,23 @@ const router = createRouter({
 
 //路由拦截
 router.beforeEach((to, from, next) => {
-	//从cacheList中的任何一个页面返回，当前页面缓存
-	const cacheList = to.meta.cacheList
-	if (cacheList) {
-		if (cacheList.indexOf(from.name) > -1) {
-			to.meta.keepAlive = true
-		} else {
-			//如果没有纳进cacheList缓存需求，就不缓存
-			if (from.name) {
-				to.meta.keepAlive = false
-			}
-			// 导航跳转需要缓存处理
-			if (from.meta.cacheList) {
-				to.meta.keepAlive = true
-			}
-		}
-	}
-	next()
+    //从cacheList中的任何一个页面返回，当前页面缓存
+    const cacheList = to.meta.cacheList
+    if (cacheList) {
+        if (cacheList.indexOf(from.name) > -1) {
+            to.meta.keepAlive = true
+        } else {
+            //如果没有纳进cacheList缓存需求，就不缓存
+            if (from.name) {
+                to.meta.keepAlive = false
+            }
+            // 导航跳转需要缓存处理
+            if (from.meta.cacheList) {
+                to.meta.keepAlive = true
+            }
+        }
+    }
+    next()
 })
 
 

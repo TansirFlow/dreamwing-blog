@@ -97,19 +97,17 @@ const blockList=ref([
     },
     {
         index:"8",
-        path:"/console/editArticle",
+        path:"/console/editarticle",
         name:"编辑文章"
-    },
-    
+    }
 ])
 
 
 // 通过索引信息获得板块名称
 const getBlockNameByPath = (path) => {
     for(let i=0;i<blockList.value.length;++i){
-        if(path===blockList.value[i].path){
+        if(path===blockList.value[i].path || path.indexOf(blockList.value[i].path)!==-1){
             blockName.value=blockList.value[i].name
-            break
         }
     }
 }
@@ -118,6 +116,7 @@ const getBlockNameByPath = (path) => {
 
 // ------------------------------------------------------------钩子函数-----------------------------------------------------------
 onMounted(() => {
+    console.log(route.path)
     getBlockNameByPath(route.path)
     getUserDetail()
 });
@@ -242,11 +241,11 @@ const logout=()=>{
             <el-container>
                 <el-header :style="{ background: `white`, display: 'flex', alignItem: `center` }">
                     <el-row justify="space-between" :style="{ width:`100%`, display: 'flex'}">
-                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'left',border:`1px solid red`}">
+                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'left',border:`0px solid red`}">
                             <el-text class="mx-1" :style="{ fontSize: `24px`, color: `black` }">{{ blockName
                                 }}</el-text>
                         </el-col>
-                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'right',border:`1px solid red`}">
+                        <el-col :span="3" :style="{display: 'flex',alignItem: `center`,justifyContent: 'right',border:`0px solid red`}">
                             <el-dropdown :hide-on-click="false" :style="{display: 'flex',alignItem: `center`,justifyContent: 'right',border:`1px solid red`,width:`140px`,height:`50px`}">
                                 <span class="el-dropdown-link">
                                     <el-row :style="{display:`flex`,width:`100%`}">

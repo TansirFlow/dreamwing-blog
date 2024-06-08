@@ -3,10 +3,7 @@ package com.dreamwing.service.impl;
 import com.dreamwing.constants.ArticleConstants;
 import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.ArticleMapper;
-import com.dreamwing.pojo.ArticleDTO;
-import com.dreamwing.pojo.ArticleVO;
-import com.dreamwing.pojo.PageBean;
-import com.dreamwing.pojo.TagVO;
+import com.dreamwing.pojo.*;
 import com.dreamwing.service.ArticleService;
 import com.dreamwing.service.TagService;
 import com.dreamwing.utils.ThreadLocalUtil;
@@ -60,7 +57,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleVO getById(Integer id) {
         ArticleVO articleVO = articleMapper.getById(id);
         if (articleVO == null) throw new DreamWingRuntimeException("文章不存在");
-        articleVO.setPassword(null);
+        articleVO.setTagList(getTagListByArticleId(id));
         return articleVO;
     }
 
@@ -157,6 +154,25 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void deleteArticleById(Integer id) {
         articleMapper.deleteArticleById(id);
+    }
+
+    @Override
+    public PageBean<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO) {
+        PageBean<ArticleVO> pb = new PageBean<>();
+        PageHelper.startPage(articleGetListDataDTO.getPageNum(), articleGetListDataDTO.getPageSize());
+        Page<ArticleVO> p = (Page<ArticleVO>) articleMapper.getListByCondition(articleGetListDataDTO);
+        pb.setTotal(p.getTotal());
+        pb.setItems(p.getResult());
+        for (int i = 0; i < pb.getItems().size(); ++i) {
+            pb.getItems().get(i).setTagList(getTagListByArticleId(pb.getItems().get(i).getId()));
+        }
+        return pb;
+    }
+
+    @Override
+    public void deleteArticleByIdList(List<Integer> idList) {
+        System.out.println(idList);
+        articleMapper.deleteArticleByIdList(idList);
     }
 
     /**

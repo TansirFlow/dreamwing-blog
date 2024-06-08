@@ -68,13 +68,18 @@ const blockList=ref([
         index:"3",
         path:"/uc/attachment",
         name:"我的附件"
+    },
+    {
+        index:"4",
+        path:"/uc/editarticle",
+        name:"编辑文章"
     }
 ])
 
 // 通过索引信息获得板块名称
 const getBlockNameByPath = (path) => {
     for(let i=0;i<blockList.value.length;++i){
-        if(path===blockList.value[i].path){
+        if(path===blockList.value[i].path || path.indexOf(blockList.value[i].path)!==-1){
             blockName.value=blockList.value[i].name
             break
         }

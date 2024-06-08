@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -53,6 +54,12 @@ public class ArticleController {
         return Result.success(list);
     }
 
+    @PostMapping("/list")
+    public Result<PageBean<ArticleVO>> getListByCondition(@RequestBody ArticleGetListDataDTO articleGetListDataDTO) {
+        PageBean<ArticleVO> list = articleService.getListByCondition(articleGetListDataDTO);
+        return Result.success(list);
+    }
+
     @PostMapping("/setTagList/{articleId}")
     public Result setTagList(@PathVariable Integer articleId, @RequestBody String[] tagList) {
         articleService.setTagList(articleId,tagList);
@@ -73,9 +80,16 @@ public class ArticleController {
     //        return Result.success(list);
     //    }
 
+
     @PostMapping("/delete/{id}")
     public Result deleteArticleById(@PathVariable Integer id){
         articleService.deleteArticleById(id);
+        return Result.success();
+    }
+
+    @PostMapping("/delete/list")
+    public Result deleteArticleByIdList(@RequestBody List<Integer> idList) {
+        articleService.deleteArticleByIdList(idList);
         return Result.success();
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
+//    @ExceptionHandler(Exception.class)
     public Result handlerException(Exception e){
         String msg=e.getMessage();
         if(e.getMessage().contains("需要匹配正则表达式")){

@@ -1,6 +1,7 @@
 package com.dreamwing.mapper;
 
 import com.dreamwing.pojo.ArticleDTO;
+import com.dreamwing.pojo.ArticleGetListDataDTO;
 import com.dreamwing.pojo.ArticleVO;
 import com.dreamwing.pojo.TagVO;
 import com.github.pagehelper.Page;
@@ -15,13 +16,13 @@ public interface ArticleMapper {
 
     @Select("select article.id as id,user_id,username as author,category_id,category_name,article_cover,article_title,article_abstract," +
             "article_content,type,look_num,article.password as password,origin_url,article.create_time as create_time," +
-            "article.update_time as update_time " +
+            "article.update_time as update_time, status " +
             "from article join user join category on user_id=user.id and category_id=category.id " +
-            "where is_delete=0 and status=1 and (article.password is null or article.password='') and article.id=#{id}")
+            "where is_delete=0 and article.id=#{id}")
     ArticleVO getById(Integer id);
 
     @Select("select article.id as id,user_id,username as author,category_id,category_name,article_cover,article_title,article_abstract," +
-            "article_content,type,look_num,article.password as password,origin_url,article.create_time as create_time," +
+            "article_content,status,type,look_num,article.password as password,origin_url,article.create_time as create_time," +
             "article.update_time as update_time " +
             "from article join user join category on user_id=user.id and category_id=category.id " +
             "where is_delete=0 and status=1 and (article.password is null or article.password='')")
@@ -53,6 +54,10 @@ public interface ArticleMapper {
     void updateArticle(ArticleDTO articleDTO);
 
 
-    @Delete("delete from article where id=#{id}")
+    @Delete("update article set is_delete=1 where id=#{id}")
     void deleteArticleById(Integer id);
+
+    Page<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO);
+
+    void deleteArticleByIdList(List<Integer> idList);
 }

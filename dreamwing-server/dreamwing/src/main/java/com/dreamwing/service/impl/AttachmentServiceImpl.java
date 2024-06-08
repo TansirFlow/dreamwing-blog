@@ -2,9 +2,11 @@ package com.dreamwing.service.impl;
 
 import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.AttachmentMapper;
-import com.dreamwing.pojo.Attachment;
-import com.dreamwing.pojo.MinioPojo;
+import com.dreamwing.pojo.*;
 import com.dreamwing.service.AttachmentService;
+import com.dreamwing.utils.ThreadLocalUtil;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -26,7 +29,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     private AttachmentMapper attachmentMapper;
 
     public String upload(String bucketName, MultipartFile file) {
-        System.out.println(file);
+//        System.out.println(file);
+        String originalFilename = file.getOriginalFilename();
         try {
             //判断桶是否存在
             boolean bucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
@@ -86,7 +90,9 @@ public class AttachmentServiceImpl implements AttachmentService {
                 default:
                     type="未知类型";
             }
-            attachmentMapper.add(type,url);
+            Map<String, Object> claims = ThreadLocalUtil.get();
+            Integer user_id = (Integer) claims.get("id");
+            attachmentMapper.add(type,url,user_id,originalFilename);
             return url;
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,10 +114,22 @@ public class AttachmentServiceImpl implements AttachmentService {
         attachmentMapper.delete(id);
     }
 
+
     @Override
-    public List<Attachment> list() {
-        List<Attachment> attachmentList=attachmentMapper.getAll();
-        return attachmentList;
+    public PageBean<Attachment> getListByCondition(AttachmentGetListDataDTO attachmentGetListDataDTO) {
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer user_id = (Integer) claims.get("id");
+        PageBean<Attachment> pb = new PageBean<>();
+        PageHelper.startPage(attachmentGetListDataDTO.getPageNum(), attachmentGetListDataDTO.getPageSize());
+        Page<Attachment> p = (Page<Attachment>) attachmentMapper.getListByCondition(attachmentGetListDataDTO,user_id);
+        pb.setTotal(p.getTotal());
+        pb.setItems(p.getResult());
+        return pb;
+    }
+
+    @Override
+    public List<String> getAttachmentTypeList() {
+        return attachmentMapper.getAttachmentTypeList();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.dreamwing.service;
 
 import com.dreamwing.pojo.ArticleDTO;
+import com.dreamwing.pojo.ArticleGetListDataDTO;
 import com.dreamwing.pojo.ArticleVO;
 import com.dreamwing.pojo.PageBean;
 
@@ -20,4 +21,8 @@ public interface ArticleService {
     void updateArticle(ArticleDTO articleDTO);
 
     void deleteArticleById(Integer id);
+
+    PageBean<ArticleVO> getListByCondition(ArticleGetListDataDTO articleGetListDataDTO);
+
+    void deleteArticleByIdList(List<Integer> idList);
 }

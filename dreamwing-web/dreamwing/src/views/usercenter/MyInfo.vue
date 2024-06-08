@@ -44,7 +44,7 @@ const confirmChangePwd = async () => {
     let result = await changePwdService(changePwdData)
 }
 
-const dialogFormVisible = ref(false)
+
 const formLabelWidth = '140px'
 
 const updateInfoData=ref({
@@ -53,6 +53,7 @@ const updateInfoData=ref({
     "signature":""
 })
 
+const dialogFormVisible = ref(false)
 const openUpdateInfoWindow=()=>{
     dialogFormVisible.value=true
     updateInfoData.value.nickname=userDetailInfo.value.nickname
@@ -154,7 +155,8 @@ userDetail()
                             </template>
                             {{ userDetailInfo.createTime }}
                         </el-descriptions-item>
-                    </el-descriptions></el-tab-pane>
+                    </el-descriptions>
+                </el-tab-pane>
                 <el-tab-pane label="修改密码">
                     <el-form :model="changePwdData" label-width="auto" style="max-width:640px">
                         <el-form-item label="旧密码">

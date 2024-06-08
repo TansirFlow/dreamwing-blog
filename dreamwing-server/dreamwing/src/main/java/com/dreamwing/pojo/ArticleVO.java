@@ -22,7 +22,6 @@ public class ArticleVO {
     private Integer status;
     private Integer type;
     private Integer lookNum;
-    @JsonIgnore
     private String password;
     private String originUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

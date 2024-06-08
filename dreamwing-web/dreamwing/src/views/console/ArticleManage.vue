@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const toAddArticlePage=()=>{
-    router.push('/console/editArticle')
+    router.push('/console/editarticle')
 }
 </script>
 <template>

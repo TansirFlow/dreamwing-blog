@@ -17,13 +17,54 @@
         insert into article(user_id, category_id, article_cover, article_title, article_abstract,
         article_content, is_delete, status, type, look_num, password, origin_url, create_time,
         update_time)
-        VALUES (#{articleDTO.userId}, #{articleDTO.categoryId}, #{articleDTO.articleCover}, #{articleDTO.articleTitle}, #{articleDTO.articleAbstract}, #{articleDTO.articleContent},
-        #{articleDTO.isDelete}, #{articleDTO.status}, #{articleDTO.type}, #{articleDTO.lookNum}, #{articleDTO.password}, #{articleDTO.originUrl}, #{articleDTO.createTime}, NOW())
+        VALUES (#{articleDTO.userId}, #{articleDTO.categoryId}, #{articleDTO.articleCover}, #{articleDTO.articleTitle},
+        #{articleDTO.articleAbstract}, #{articleDTO.articleContent},
+        #{articleDTO.isDelete}, #{articleDTO.status}, #{articleDTO.type}, #{articleDTO.lookNum}, #{articleDTO.password},
+        #{articleDTO.originUrl}, #{articleDTO.createTime}, NOW())
     </insert>
     <delete id="deleteByArticleIdAndTagList">
         DELETE FROM article_tag
         WHERE article_id=#{articleId} AND tag_id IN
         <foreach item="item" collection="tagList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <select id="getListByCondition"  resultType="com.dreamwing.pojo.ArticleVO">
+        select article.id as id,
+        user_id,
+        username as author,
+        category_id,
+        category_name,
+        article_cover,
+        article_title,
+        article_abstract,
+        article_content,
+        status,
+        type,
+        look_num,
+        article.password as password,
+        origin_url,
+        article.create_time as create_time,
+        article.update_time as update_time
+        from article
+        join user
+        join category on user_id = user.id and category_id = category.id
+        where is_delete = 0
+        <if test="categoryId!=null">
+            and category_id=#{categoryId}
+        </if>
+        <if test="statusId!=null">
+            and status=#{statusId}
+        </if>
+        <if test="typeId!=null">
+            and type=#{typeId}
+        </if>
+    </select>
+    <delete id="deleteArticleByIdList">
+        UPDATE article
+        SET is_delete = 1
+        WHERE id IN
+        <foreach item="item" index="index" collection="idList" open="(" separator="," close=")">
             #{item}
         </foreach>
     </delete>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dreamwing.mapper.AttachmentMapper">
+    <select id="getListByCondition"  resultType="com.dreamwing.pojo.Attachment">
+        SELECT attachment.id as id,
+        type,
+        url,
+        attachment.create_time as create_time,
+        create_user,
+        username,
+        origin_name as file_name
+        FROM attachment JOIN user ON user.id=create_user
+        WHERE user.id=#{user_id}
+        <if test="attachmentGetListDataDTO.attachmentType!=null">
+            AND type=#{attachmentGetListDataDTO.attachmentType}
+        </if>
+    </select>
+</mapper>
