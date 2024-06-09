@@ -35,4 +35,7 @@ public interface PublicMapper {
             "from article join user join category on user_id=user.id and category_id=category.id " +
             "where is_delete=0 and status=1 and (article.password is null or article.password='') and article.id=#{id}")
     ArticleVO getArticleById(Integer id);
+
+    @Select("update article set look_num=#{lookNum} where id=#{id}")
+    void addArticleLookNumById(Integer id,Integer lookNum);
 }

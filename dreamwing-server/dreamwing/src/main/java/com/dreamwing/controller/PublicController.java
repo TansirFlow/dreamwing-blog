@@ -72,7 +72,7 @@ public class PublicController {
     }
 
     @GetMapping("/article/{id}")
-    public Result<ArticleVO> getById(@PathVariable Integer id) {
+    public Result<ArticleVO> getArticleById(@PathVariable Integer id) {
         ArticleVO articleVO = publicService.getArticleById(id);
         return Result.success(articleVO);
     }

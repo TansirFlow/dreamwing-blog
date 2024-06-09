@@ -42,7 +42,12 @@ public class PublicServiceImpl implements PublicService {
         ArticleVO articleVO = publicMapper.getArticleById(id);
         if (articleVO == null) throw new DreamWingRuntimeException("文章不存在");
         articleVO.setPassword(null);
+        addArticleLookNumById(id,articleVO.getLookNum()+1);
         return articleVO;
+    }
+
+    public void addArticleLookNumById(Integer id,Integer lookNum) {
+        publicMapper.addArticleLookNumById(id,lookNum);
     }
 
     @Override

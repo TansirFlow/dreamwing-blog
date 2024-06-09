@@ -720,6 +720,6 @@ onBeforeUnmount(() => {
 
 .sub-comment-item {
     width: 100%;
-    height: calc(100vh - 320px);
+    height: calc(100vh - 340px);
 }
 </style>

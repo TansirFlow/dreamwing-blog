@@ -10,6 +10,15 @@ import router from '@/router'
 const baseURL = '/api';
 const instance = axios.create({ baseURL })
 
+instance.interceptors.request.use(
+    (config) => {
+        showFullScreenLoading()
+        return config;
+    },
+    (err) => {
+        Promise.reject(err)
+    }
+)
 //添加响应拦截器
 instance.interceptors.response.use(
     result => {

@@ -99,6 +99,10 @@ const gotoUserCenter = () => {
     router.push('/uc')
 }
 
+// 转到发布文章页面
+const gotoAddArticlePage = () =>{
+    router.push('/uc/editarticle')
+}
 
 
 // -------------------------------------------菜单相关处理----------------------------------------------
@@ -186,7 +190,7 @@ const getCategoryList = async () => {
                 <el-button size="large" :icon="Search" circle @click="searchBoxVisible = true" />
             </el-menu-item>
             <el-menu-item index="3">
-                <el-button size="large" :icon="CirclePlus" type="primary" round>发布文章</el-button>
+                <el-button size="large" :icon="CirclePlus" type="primary" @click="gotoAddArticlePage" round>发布文章</el-button>
             </el-menu-item>
         </el-menu>
     </div>
