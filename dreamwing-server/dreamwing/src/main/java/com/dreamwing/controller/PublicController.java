@@ -1,10 +1,6 @@
 package com.dreamwing.controller;
 
-import com.dreamwing.pojo.ArticleVO;
-import com.dreamwing.pojo.CategoryVO;
-import com.dreamwing.pojo.PageBean;
-import com.dreamwing.pojo.Result;
-import com.dreamwing.service.ArticleService;
+import com.dreamwing.pojo.*;
 import com.dreamwing.service.PublicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -79,5 +75,11 @@ public class PublicController {
     public Result<ArticleVO> getById(@PathVariable Integer id) {
         ArticleVO articleVO = publicService.getArticleById(id);
         return Result.success(articleVO);
+    }
+
+    @GetMapping("/comment/getCommentByArticleId/{articleId}")
+    public Result<List<CommentVO>> getCommentByArticleId(@PathVariable Integer articleId) {
+        List<CommentVO> commentVOList=publicService.getCommentByArticleId(articleId);
+        return Result.success(commentVOList);
     }
 }

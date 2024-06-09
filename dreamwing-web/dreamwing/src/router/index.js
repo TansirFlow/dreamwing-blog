@@ -31,7 +31,7 @@ const routes = [
         name: 'articleDetail',
         component: ArticleVue,
         meta: {
-            keepAlive: true
+            keepAlive: false
         },
         // beforeEnter: (to, from) => {
         //     to.meta.keepAlive = (to.name === 'articleDetail' && from.name === 'index') ? false : true

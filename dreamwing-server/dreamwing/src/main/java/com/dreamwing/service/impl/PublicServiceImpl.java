@@ -2,10 +2,8 @@ package com.dreamwing.service.impl;
 
 import com.dreamwing.exception.DreamWingRuntimeException;
 import com.dreamwing.mapper.PublicMapper;
-import com.dreamwing.pojo.ArticleVO;
-import com.dreamwing.pojo.CategoryVO;
-import com.dreamwing.pojo.PageBean;
-import com.dreamwing.pojo.TagVO;
+import com.dreamwing.pojo.*;
+import com.dreamwing.service.CommentService;
 import com.dreamwing.service.PublicService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -18,6 +16,8 @@ import java.util.List;
 public class PublicServiceImpl implements PublicService {
     @Autowired
     private PublicMapper publicMapper;
+    @Autowired
+    private CommentService commentMapper;
     @Override
     public PageBean<ArticleVO> getArticleList(Integer pageNum, Integer pageSize) {
         PageBean<ArticleVO> pb = new PageBean<>();
@@ -45,6 +45,12 @@ public class PublicServiceImpl implements PublicService {
         return articleVO;
     }
 
+    @Override
+    public List<CommentVO> getCommentByArticleId(Integer articleId) {
+        return commentMapper.getCommentByArticleId(articleId);
+    }
+
+    @Override
     public List<TagVO> getTagListByArticleId(Integer articleId) {
         List<TagVO> tagVOList = publicMapper.getTagListByArticleId(articleId);
         return tagVOList;

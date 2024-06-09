@@ -22,3 +22,6 @@ export const getArticleStatusListService = () => {
 export const getArticleTypeListService = () => {
     return requestPublic.get(`/public/article/type`);
 }
+export const getCommentByArticleIdService=(id)=>{
+    return requestPublic.get(`/public/comment/getCommentByArticleId/${id}`)
+}

@@ -1,10 +1,10 @@
 <script setup>
-import { getArticleDetailService } from '@/api/public';
+import { getArticleDetailService, getCommentByArticleIdService } from '@/api/public';
 import { useRoute } from 'vue-router';
 import { ref, onMounted, onActivated, nextTick, onBeforeUnmount, onUpdated, defineComponent, createApp } from 'vue'
 import { CirclePlus, Search, Link, House } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { addCommentSelfService } from '@/api/article'
 //获取路由对象
 const currentRoute = useRoute();
 
@@ -79,6 +79,169 @@ const getArticleById = async () => {
 // 调用函数获取文章详细内容
 async function getArticleData() {
     await getArticleById()
+}
+
+// 评论列表
+const commentList = ref([
+    {
+        id: 1,//评论ID
+        userId: 26,//发言人ID
+        commentUserName: "Tansor",//发言人用户名
+        commentUserAvatar: "http://jd.tansor.top:8999/dreamwing-blog/2d7f3bd1-113b-49ee-9315-6c266206e39a.JPG",
+        content: "你这写的什么垃圾啊？随便找条狗来都比你写的好啊",//评论内容
+        parentCommentId: 1,//父评论ID
+        type: 1,//评论类型
+        parentId: 1,//所属文章ID
+        isDelete: 0,
+        isReview: 1,
+        createTime: "2024-06-09 16:46",
+        updateTime: "2024-06-09",
+    },
+])
+
+// 根评论（没有父评论）
+const rootCommentList = ref([])
+
+const getCommentByArticleId = async (id) => {
+    commentList.value = []
+    let result = await getCommentByArticleIdService(id);
+    commentList.value = result.data;
+    rootCommentList.value = []
+    for (let i = 0; i < commentList.value.length; ++i) {
+        if (commentList.value[i].parentCommentId === null || commentList.value[i].parentCommentId === undefined) {
+            rootCommentList.value.push(commentList.value[i])
+        }
+    }
+}
+getCommentByArticleId(getArticleId())
+
+
+// 新的根评论内容
+const newCommentSelf = ref('')
+// 控制发布评论的窗口（新楼）
+const addCommentSelfBoxVisable = ref(false)
+// 打开发布评论窗口
+const openAddCommentSelfBox = () => {
+    addCommentSelfBoxVisable.value = true
+}
+// 发布新评论
+const addCommentSelf = async () => {
+    let newCommentSelfData = {
+        content: newCommentSelf.value,
+        type: 1,
+        parentId: getArticleId(),
+    }
+    let result = await addCommentSelfService(newCommentSelfData);
+    ElMessage.success("发布成功")
+    addCommentSelfBoxVisable.value = false
+    getCommentByArticleId(getArticleId())
+    newCommentSelf.value = ''
+}
+
+
+// 控制回复评论的窗口是否可视
+const addCommentReplyBoxVisable = ref(false)
+// 打开回复窗口
+const openAddCommentRelayBoxVisable = (id,tempContent) => {
+    subCommentWillReplyId.value=id
+    subCommentWillReplyIdContent.value=tempContent
+    addCommentReplyBoxVisable.value = true;
+}
+
+// 回复的评论内容
+const newCommentRelay = ref('')
+// 当前正在查看的根评论
+const thisRootComment = ref();
+// 发布回复评论
+const addCommentReply = async (newCommentData) => {
+    let result = await addCommentSelfService(newCommentData);
+    ElMessage.success("发布成功")
+    addCommentSelfBoxVisable.value = false
+    getCommentByArticleId(getArticleId())
+    newCommentSelf.value = ''
+}
+
+// 在已经获取到的数据中根据ID查找
+const getCommentByIdLocal=(id)=>{
+    for(let i=0;i<commentList.value.length;++i){
+        if(commentList.value[i].id===id){
+            return commentList.value[i]
+        }
+    }
+}
+
+// 子评论窗口是否可视
+const subCommentBoxVisable = ref(false)
+// 当前选定评论的子评论列表
+const thisSubCommentList = ref([])
+
+// 尝试根据父评论id来获取某个根评论的所有下级评论
+const openSubCommentBox = (fatherId) => {
+    thisRootComment.value=getCommentByIdLocal(fatherId);
+    let subCommentListTemp = [] // 存储临时的评论id
+    for (let i = 0; i < commentList.value.length; ++i) {
+        if (commentList.value[i].parentCommentId === fatherId) {
+            subCommentListTemp.push(commentList.value[i].id)
+        }
+    }
+    let flag = true;
+    while (flag) {
+        flag=false;
+        for (let i = 0; i < commentList.value.length; ++i) {
+            if (subCommentListTemp.indexOf(commentList.value[i].id) === -1
+                && subCommentListTemp.indexOf(commentList.value[i].parentCommentId) !== -1
+            ) {
+                subCommentListTemp.push(commentList.value[i].id)
+                flag=true;
+            }
+        }
+    }
+    thisSubCommentList.value=[]
+    for(let i=0;i<subCommentListTemp.length;++i){
+        thisSubCommentList.value.push(getCommentByIdLocal(subCommentListTemp[i]))
+        let thisParentCommentId=thisSubCommentList.value[i].parentCommentId;
+        thisSubCommentList.value[i].parentCommentContent=getCommentByIdLocal(thisParentCommentId).content
+        thisSubCommentList.value[i].parentCommentUserName=getCommentByIdLocal(thisParentCommentId).commentUserName
+        thisSubCommentList.value[i].parentCommentUserId=getCommentByIdLocal(thisParentCommentId).userId
+    }
+    console.log(thisSubCommentList.value)
+    subCommentBoxVisable.value=true
+}
+
+
+// 二级评论列表页面的默认输入框内容，输入的是要恢复给一级评论的内容
+const subCommentData=ref('')
+// 给一级评论回复一个评论
+const sendSubComment=()=>{
+    let newCommentSelfData = {
+        content: subCommentData.value,
+        type: 1,
+        parentCommentId: thisRootComment.value.id,
+        parentId: getArticleId(),
+    }
+    addCommentReply(newCommentSelfData);
+    subCommentData.value=''
+}
+
+// 当前正在回复的二级评论的ID
+const subCommentWillReplyId=ref()
+// 当前正在回复的二级评论的内容
+const subCommentWillReplyIdContent=ref('')
+
+
+// 给二级评论回复的评论内容
+const subSubCommentData=ref('')
+// 给二级评论回复
+const sendSubSubComment=()=>{
+    let newCommentSelfData = {
+        content: subSubCommentData.value,
+        type: 1,
+        parentCommentId: subCommentWillReplyId.value,
+        parentId: getArticleId(),
+    }
+    addCommentReply(newCommentSelfData);
+    subSubCommentData.value=''
+    addCommentReplyBoxVisable.value=false
 }
 
 // ----------------------------------------------------markdown处理、大纲处理-----------------------------------------------------------------
@@ -191,8 +354,8 @@ const adaptOutlinePosition = () => {
     const highLightTop = 28 * (heightTitle.value + 1);
     // console.log("当前高亮标题距离大纲顶部距离"+(highLightTop))
     // console.log("当前大纲滚动距离"+(outlineScrollTop))
-    console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
-    console.log("大纲滚动高度" + outlineScrollHeight.value)
+    // console.log("当前高亮标题距离大纲滚动区顶部距离" + (highLightTop - outlineScrollTop))
+    // console.log("大纲滚动高度" + outlineScrollHeight.value)
     const highLightToScrollAreaTopDistance = highLightTop - outlineScrollTop;
     if (highLightToScrollAreaTopDistance >= parseInt(outlineScrollHeight.value)) {
         let delta = parseInt(outlineScrollHeight.value)
@@ -246,18 +409,7 @@ onBeforeUnmount(() => {
 })
 
 
-const commentList=ref([
-    {
-        id:1,
-        username:"Tansor",
-        avatar:"http://jd.tansor.top:8999/dreamwing-blog/2d7f3bd1-113b-49ee-9315-6c266206e39a.JPG",
-        content:"你这写的什么垃圾啊？随便找条狗来都比你写的好啊",
-        createTime:"2024-06-09 16:46",
-        createUser:26
-    },
-    
-    
-])
+
 
 </script>
 
@@ -392,25 +544,29 @@ const commentList=ref([
                         </el-card><br>
                         <el-affix :offset="90">
                             <el-card class="comment-style">
-                                <el-row justify="space-between" :style="{ paddingBottom: `10px` }">
+                                <el-row justify="space-between" :style="{ paddingBottom: `10px`, width: `100%` }">
                                     <el-col :span="12">
                                         <el-text :style="{ fontSize: `21px` }">评论/留言</el-text>
                                     </el-col>
                                     <el-col :span="12">
-                                        <el-button type="primary" plain>我也说一句</el-button>
+                                        <el-button type="primary" plain @click="openAddCommentSelfBox">我也说一句</el-button>
                                     </el-col>
                                 </el-row>
                                 <el-row class="comment-item">
-                                    <el-scrollbar height="100%">
+                                    <el-scrollbar height="100%" :style="{ width: `100%` }">
 
-                                        <el-row class="red-border" v-for="item in commentList" :key="item.id">
+                                        <el-row class="red-border" v-for="item in rootCommentList" :key="item.id" @click="openSubCommentBox(item.id)"
+                                            :style="{ width: `100%`,cursor:`pointer`,borderBottom:`1px solid #00000011` }">
                                             <el-row class="red-border"
                                                 :style="{ width: `100%`, paddingTop: `5px`, paddingBottom: `5px` }">
                                                 <el-col class="red-border" :span="4">
-                                                    <el-avatar :size="30" :src="item.avatar" />
+                                                    <el-avatar :size="30" :src="item.commentUserAvatar" />
                                                 </el-col>
                                                 <el-col class="red-border" :span="20">
-                                                    <el-text :style="{ fontSize: `16px`, color: `black` }">{{ item.username }}</el-text><br>
+                                                    <el-text :style="{ fontSize: `16px`, color: `black` }">
+                                                        {{item.commentUserName }}
+                                                    </el-text>
+                                                    <br>
                                                     <el-text>{{ item.createTime }}</el-text><br>
                                                     <el-text :style="{ width: `100%` }">{{ item.content }}</el-text>
                                                 </el-col>
@@ -453,6 +609,74 @@ const commentList=ref([
         </el-row>
     </el-dialog>
     <el-backtop :right="100" :bottom="100" />
+
+    <el-dialog v-model="addCommentSelfBoxVisable" title="发布新的评论" width="500">
+        <el-form>
+            <el-form-item label="评论内容" :label-width="formLabelWidth">
+                <el-input type="textarea" v-model="newCommentSelf" autocomplete="off" />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="addCommentSelfBoxVisable = false">取消</el-button>
+                <el-button type="primary" @click="addCommentSelf">
+                    确定
+                </el-button>
+            </div>
+        </template>
+    </el-dialog>
+
+    <el-dialog v-model="addCommentReplyBoxVisable" title="回复二级评论" width="500">
+        <el-form>
+            <el-form-item label="评论回复给" :label-width="formLabelWidth">
+                <el-text>//{{ subCommentWillReplyIdContent }}</el-text>
+            </el-form-item>
+            <el-form-item label="评论内容" :label-width="formLabelWidth">
+                <el-input type="textarea" v-model="subSubCommentData" autocomplete="off" />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="addCommentReplyBoxVisable = false">取消</el-button>
+                <el-button type="primary" @click="sendSubSubComment">
+                    确定
+                </el-button>
+            </div>
+        </template>
+    </el-dialog>
+
+    <el-dialog v-model="subCommentBoxVisable" title="评论和回复" width="500">
+        <el-row class="sub-comment-item">
+            <el-text>共{{ thisSubCommentList.length }}条评论回复</el-text>
+            <el-scrollbar height="100%" :style="{ width: `100%` }">
+                <el-row class="red-border" v-for="item in thisSubCommentList" :key="item.id" :style="{ width: `100%`,borderBottom:`1px solid #00000011` }">
+                    <el-row class="red-border" :style="{ width: `100%`, paddingTop: `5px`, paddingBottom: `5px` }">
+                        <el-col class="red-border" :span="4">
+                            <el-avatar :size="60" :src="item.commentUserAvatar" />
+                        </el-col>
+                        <el-col class="red-border" :span="20">
+                            <el-text :style="{ fontSize: `16px`, color: `black` }">
+                                {{item.commentUserName }}&emsp;回复
+                            </el-text>
+                            <el-text>
+                                &emsp;//{{ item.parentCommentUserName }}:{{ item.parentCommentContent }}
+                            </el-text>
+                            <el-button type="info" link @click="openAddCommentRelayBoxVisable(item.id,`${item.parentCommentUserName}:${item.parentCommentContent}`)">&emsp;回复</el-button>
+                            <br>
+                            <el-text>{{ item.createTime }}</el-text><br>
+                            <el-text :style="{ width: `100%` }">{{ item.content }}</el-text>
+                        </el-col>
+                    </el-row>
+                </el-row>
+            </el-scrollbar>
+        </el-row>
+        <template #footer>
+            <el-input type="textarea" placeholder="回复一级评论" v-model="subCommentData"></el-input><br>
+            <div class="dialog-footer">
+                <el-button type="primary" @click="sendSubComment">发送</el-button>
+            </div>
+        </template>
+    </el-dialog>
 </template>
 
 <style lang="css" scoped>
@@ -481,6 +705,7 @@ const commentList=ref([
 }
 
 .comment-style {
+    width: 100%;
     height: calc(100vh - 110px);
 }
 
@@ -488,8 +713,13 @@ const commentList=ref([
     border: 0px solid red;
 }
 
-.comment-item{
-    width:100%;
-    height:calc(100vh - 190px);
+.comment-item {
+    width: 100%;
+    height: calc(100vh - 190px);
+}
+
+.sub-comment-item {
+    width: 100%;
+    height: calc(100vh - 320px);
 }
 </style>

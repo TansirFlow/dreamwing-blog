@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dreamwing.mapper.CommentMapper">
+
+    <select id="getByArticleId" resultType="com.dreamwing.pojo.CommentVO">
+        SELECT comment.id          as id,
+               comment.user_id     as user_id,
+               username            as comment_user_name,
+               avatar              as comment_user_avatar,
+               comment.content     as content,
+               parent_comment_id,
+               comment.type        as type,
+               parent_id,
+               is_review,
+               comment.is_delete   as is_delete,
+               comment.create_time as create_time,
+               comment.update_time as update_time
+        FROM comment
+                 JOIN user ON comment.user_id = user.id
+                 JOIN article ON parent_id = article.id
+        WHERE parent_id = #{articleId}
+          AND is_review = 1
+          AND article.is_delete = 0 AND comment.type=1
+    </select>
+    <select id="getByArticleIdForAdmin" resultType="com.dreamwing.pojo.CommentVO">
+        SELECT comment.id          as id,
+               comment.user_id     as user_id,
+               username            as comment_user_name,
+               avatar              as comment_user_avatar,
+               comment.content     as content,
+               parent_comment_id,
+               comment.type        as type,
+               parent_id,
+               is_review,
+               comment.is_delete   as is_delete,
+               comment.create_time as create_time,
+               comment.update_time as update_time
+        FROM comment
+                 JOIN user ON comment.user_id = user.id
+                 JOIN article ON parent_id = article.id
+        WHERE parent_id = #{articleId} AND article.is_delete=0 AND comment.type=1
+    </select>
+</mapper>

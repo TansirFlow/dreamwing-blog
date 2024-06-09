@@ -1,8 +1,6 @@
 package com.dreamwing.service;
 
-import com.dreamwing.pojo.ArticleVO;
-import com.dreamwing.pojo.CategoryVO;
-import com.dreamwing.pojo.PageBean;
+import com.dreamwing.pojo.*;
 
 import java.util.List;
 
@@ -12,4 +10,8 @@ public interface PublicService {
     List<CategoryVO> getCategoryList();
 
     ArticleVO getArticleById(Integer id);
+
+    List<CommentVO> getCommentByArticleId(Integer articleId);
+
+    List<TagVO> getTagListByArticleId(Integer articleId);
 }

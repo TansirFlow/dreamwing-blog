@@ -28,4 +28,8 @@ public interface CommentMapper {
 
     @Delete("delete from comment where id=#{id}")
     void delete(Integer id);
+
+    List<CommentVO> getByArticleId(Integer articleId);
+
+    List<CommentVO> getByArticleIdForAdmin(Integer articleId);
 }

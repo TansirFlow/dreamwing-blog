@@ -1,6 +1,5 @@
 package com.dreamwing.controller;
 
-import com.dreamwing.pojo.CategoryVO;
 import com.dreamwing.pojo.CommentDTO;
 import com.dreamwing.pojo.CommentVO;
 import com.dreamwing.pojo.Result;
@@ -39,5 +38,17 @@ public class CommentController {
     public Result delete(@PathVariable Integer id){
         commentService.delete(id);
         return Result.success();
+    }
+
+    @GetMapping("/getByArticleId/{articleId}")
+    public Result<List<CommentVO>>getByArticleId(@PathVariable Integer articleId){
+        List<CommentVO> commentVOList=commentService.getCommentByArticleId(articleId);
+        return Result.success(commentVOList);
+    }
+
+    @GetMapping("/getByArticleIdForAdmin/{articleId}")
+    public Result<List<CommentVO>>getByArticleIdForAdmin(@PathVariable Integer articleId){
+        List<CommentVO> commentVOList=commentService.getByArticleIdForAdmin(articleId);
+        return Result.success(commentVOList);
     }
 }

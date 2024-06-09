@@ -13,4 +13,8 @@ public interface CommentService {
     List<CommentVO> list();
 
     void delete(Integer id);
+
+    List<CommentVO> getCommentByArticleId(Integer articleId);
+
+    List<CommentVO> getByArticleIdForAdmin(Integer articleId);
 }
