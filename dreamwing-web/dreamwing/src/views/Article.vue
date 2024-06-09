@@ -20,12 +20,6 @@ const handleTopMenuSelect = (key, keyPath) => {
 
 
 
-
-
-
-
-
-
 //----------------------------------------------------搜索相关------------------------------------------------------
 // 设置搜索框可见性
 const searchBoxVisible = ref(false)
@@ -252,6 +246,19 @@ onBeforeUnmount(() => {
 })
 
 
+const commentList=ref([
+    {
+        id:1,
+        username:"Tansor",
+        avatar:"http://jd.tansor.top:8999/dreamwing-blog/2d7f3bd1-113b-49ee-9315-6c266206e39a.JPG",
+        content:"你这写的什么垃圾啊？随便找条狗来都比你写的好啊",
+        createTime:"2024-06-09 16:46",
+        createUser:26
+    },
+    
+    
+])
+
 </script>
 
 <template>
@@ -382,7 +389,39 @@ onBeforeUnmount(() => {
                                     </div>
                                 </el-col>
                             </el-row>
-                        </el-card>
+                        </el-card><br>
+                        <el-affix :offset="90">
+                            <el-card class="comment-style">
+                                <el-row justify="space-between" :style="{ paddingBottom: `10px` }">
+                                    <el-col :span="12">
+                                        <el-text :style="{ fontSize: `21px` }">评论/留言</el-text>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-button type="primary" plain>我也说一句</el-button>
+                                    </el-col>
+                                </el-row>
+                                <el-row class="comment-item">
+                                    <el-scrollbar height="100%">
+
+                                        <el-row class="red-border" v-for="item in commentList" :key="item.id">
+                                            <el-row class="red-border"
+                                                :style="{ width: `100%`, paddingTop: `5px`, paddingBottom: `5px` }">
+                                                <el-col class="red-border" :span="4">
+                                                    <el-avatar :size="30" :src="item.avatar" />
+                                                </el-col>
+                                                <el-col class="red-border" :span="20">
+                                                    <el-text :style="{ fontSize: `16px`, color: `black` }">{{ item.username }}</el-text><br>
+                                                    <el-text>{{ item.createTime }}</el-text><br>
+                                                    <el-text :style="{ width: `100%` }">{{ item.content }}</el-text>
+                                                </el-col>
+                                            </el-row>
+                                        </el-row>
+
+                                    </el-scrollbar>
+                                </el-row>
+
+                            </el-card>
+                        </el-affix>
                     </el-col>
                 </el-row>
                 <el-footer class="footer">
@@ -439,5 +478,18 @@ onBeforeUnmount(() => {
     color: black;
     border-left: 2px solid rgba(0, 0, 0, 0);
     /*font-size: 14px;*/
+}
+
+.comment-style {
+    height: calc(100vh - 110px);
+}
+
+.red-border {
+    border: 0px solid red;
+}
+
+.comment-item{
+    width:100%;
+    height:calc(100vh - 190px);
 }
 </style>
