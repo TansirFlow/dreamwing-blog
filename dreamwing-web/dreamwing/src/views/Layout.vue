@@ -3,7 +3,7 @@ import { ref, onMounted, onActivated } from 'vue'
 import { CirclePlus, Search, Link, House, Clock, User } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router';
-import {  } from '@/api/layout'
+import { getUserDetailService } from '@/api/layout'
 import { getCategoryListService, getArticleListService } from '@/api/public'
 const router = useRouter();
 import { useTokenStore } from '@/stores/token.js'
@@ -64,6 +64,13 @@ onActivated(() => {
 
 
 // --------------------------------------------------账户相关处理-----------------------------------------
+// 存储用户详细信息
+const userDetailInfo=ref({})
+const getUserDetail=async ()=>{
+    let result=await getUserDetailService();
+    userDetailInfo.value=result.data
+}
+
 // 用户登录的状态
 const loginStatus = ref(false)
 
@@ -71,6 +78,7 @@ const loginStatus = ref(false)
 const checkLoginStatus = () => {
     if (tokenStore.token) {
         loginStatus.value = true;
+        getUserDetail()
     } else {
         loginStatus.value = false;
     }
@@ -159,9 +167,10 @@ const getCategoryList = async () => {
             @select="handleTopMenuSelect" style="height: 70px;position:flxed" background-color="rgba(255,255,255,0.5)"
             :style="{ backdropFilter: `blur(10px)` }">
             <el-menu-item index="0">
-                <img style="width: 100px" src="../assets/element-plus-logo.svg" alt="Element logo" />
+                <!-- <img style="width: 100px" src="../assets/element-plus-logo.svg" alt="Element logo" /> -->
+                 <el-text type="primary" :style="{fontSize:`21px`,}">DreamWing Blog</el-text>
             </el-menu-item>
-            <el-menu-item index="4" style="font-size: 21px;">
+            <!-- <el-menu-item index="4" style="font-size: 21px;">
                 <el-icon :size="20">
                     <House />
                 </el-icon>
@@ -172,12 +181,12 @@ const getCategoryList = async () => {
                     <Link />
                 </el-icon>
                 友链
-            </el-menu-item>
+            </el-menu-item> -->
             <div class="flex-grow" />
             <el-sub-menu index="1">
-                <template #title><el-avatar /></template>
+                <template #title><el-avatar :src="userDetailInfo.avatar"/></template>
                 <div v-if="loginStatus">
-                    <el-menu-item index="1-1" @click="gotoConsole">管理后台</el-menu-item>
+                    <el-menu-item index="1-1" @click="gotoConsole" v-if="userDetailInfo.role===1">管理后台</el-menu-item>
                     <el-menu-item index="1-2" @click="gotoUserCenter">个人中心</el-menu-item>
                     <el-menu-item index="1-3" @click="logout">退出登录</el-menu-item>
                 </div>

@@ -7,3 +7,6 @@ export const getArticleListService = () => {
 export const getCategoryListService = () =>{
     return requestPublic.get('/category/list')
 }
+export const getUserDetailService = () => {
+    return request.get(`/user/info`);
+}
